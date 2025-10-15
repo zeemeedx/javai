@@ -22,6 +22,8 @@ public class UsuarioController {
     //pesquise por Using generated security password:
     //pois aparece no terminal como Using generated security password: <senha-gerada>
     // rode com curl -u user:<senha-gerada> http://localhost:8080/users 
+    // ou acesse via navegador http://localhost:8080/users
+    // o usuário padrão é "user"
 
     @GetMapping("/users")
     public List<Usuario> getUsuarios() {
