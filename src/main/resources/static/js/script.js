@@ -17,8 +17,7 @@ form.addEventListener('submit', async (e) => {
         });
 
         if (response.ok) {
-            message.textContent = 'Login successful!';
-            message.style.color = 'green';
+            window.location.href = 'users.html';
         } else {
             message.textContent = 'Login failed. Please check your credentials.';
             message.style.color = 'red';

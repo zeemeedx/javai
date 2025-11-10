@@ -18,8 +18,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "usuarios")
-public class Usuario implements UserDetails{
+@Table(name = "users")
+public class User implements UserDetails{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,7 +34,7 @@ public class Usuario implements UserDetails{
     @Column(nullable = false)
     private String senha;
 
-    public Usuario(Long id, String nome, String email) {
+    public User(Long id, String nome, String email) {
         this.id = id;
         this.nome = nome;
         this.email = email;

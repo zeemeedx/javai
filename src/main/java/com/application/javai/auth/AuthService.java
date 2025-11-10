@@ -1,6 +1,6 @@
 package com.application.javai.auth;
 
-import com.application.javai.Usuario;
+import com.application.javai.User;
 import com.application.javai.UserRepository;
 import com.application.javai.auth.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
 
     public void register(RegisterRequest request) {
-        var user = Usuario.builder()
+        var user = User.builder()
             .nome(request.getNome())
             .email(request.getEmail())
             .senha(passwordEncoder.encode(request.getSenha()))
