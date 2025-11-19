@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <title>Mapa do Rio de Janeiro</title>
+
+    <!-- CSS do Leaflet -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+
+    <style>
+      /* O mapa precisa de altura fixa pra aparecer */
+      #map {
+        height: 100vh;   /* tela toda */
+        width: 100vw;
+        margin: 0;
+      }
+      body {
+        margin: 0;
+      }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <!-- JS do Leaflet -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+
+    <script>
+      // Coordenadas aproximadas do centro do Rio de Janeiro
+      const rioLat = -22.9068;
+      const rioLon = -43.1729;
+
+      // Cria o mapa e centraliza no Rio de Janeiro com zoom 12
+      const map = L.map('map').setView([rioLat, rioLon], 12);
+
+      // Camada de tiles do OpenStreetMap
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Exemplo: adicionando um marcador em um ponto famoso (Pão de Açúcar-ish)
+      const marker = L.marker([-22.9486, -43.1566]).addTo(map);
+      marker.bindPopup('<b>Pão de Açúcar</b><br/>Vamos marcar um rolê aqui? 😄');
+    </script>
+</body>
+</html>
