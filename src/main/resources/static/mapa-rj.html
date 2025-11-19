@@ -59,6 +59,10 @@
         }
 
         const places = await response.json();
+        console.log('Places recebidos:', places.length, places);
+        if (!places.length) {
+        console.warn('Nenhum place recebido da API');
+        }
 
         markersLayer.clearLayers();
 
