@@ -37,7 +37,7 @@
       // Centro padrão (Rio de Janeiro)
       const defaultLat = -22.9068;
       const defaultLon = -43.1729;
-      const defaultRadius = 2000;
+      const defaultRadius = 4000;
 
       const map = L.map("map").setView([defaultLat, defaultLon], 12);
 
@@ -47,6 +47,26 @@
       }).addTo(map);
 
       const markersLayer = L.layerGroup().addTo(map);
+
+      // 🔴 Marker especial para localização do usuário / RJ padrão
+      let userMarker = null;
+
+      function setUserMarker(lat, lon, label) {
+        console.log("userMarker vai pra:", lat, lon, "→", label);
+        if (userMarker) {
+          userMarker.setLatLng([lat, lon]);
+          userMarker.setPopupContent(label);
+        } else {
+          userMarker = L.circleMarker([lat, lon], {
+            radius: 8,
+            color: "red",
+            fillColor: "red",
+            fillOpacity: 0.9,
+          })
+            .addTo(map)
+            .bindPopup(label);
+        }
+      }
 
       async function carregarPlaces(lat, lon, radius = defaultRadius) {
         try {
@@ -72,17 +92,27 @@
           places.forEach((place) => {
             const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
             marker.bindPopup(`
-            <b>${place.name}</b><br/>
-            Tipo: ${place.type}<br/>
-            <button onclick="combinarRole(${place.id})">
-                Combinar rolê
-            </button>
-            `);
+          <b>${place.name}</b><br/>
+          Tipo: ${place.type}<br/>
+          <button onclick="combinarRole(${place.id})">
+            Combinar rolê
+          </button>
+        `);
           });
         } catch (error) {
           console.error("Erro ao carregar places:", error);
         }
       }
+      
+      map.on("click", function (e) {
+        const lat = e.latlng.lat;
+        const lon = e.latlng.lng;
+
+        console.log("Posição ajustada manualmente:", lat, lon);
+
+        setUserMarker(lat, lon, "Posição ajustada por você");
+        carregarPlaces(lat, lon, defaultRadius);
+      });
 
       function combinarRole(placeId) {
         alert("Combinar rolê no lugar ID " + placeId);
@@ -97,7 +127,13 @@
               const userLon = pos.coords.longitude;
               console.log("Localização do usuário:", userLat, userLon);
 
+              // Centraliza no usuário
               map.setView([userLat, userLon], 13);
+
+              // 🔴 Marca a localização do usuário em vermelho
+              setUserMarker(userLat, userLon, "Você está aqui");
+
+              // Carrega lugares ao redor
               carregarPlaces(userLat, userLon, defaultRadius);
             },
             (err) => {
@@ -107,6 +143,14 @@
               );
               // fallback: usa Rio de Janeiro
               map.setView([defaultLat, defaultLon], 12);
+
+              // 🔴 Marca o centro RJ como localização padrão
+              setUserMarker(
+                defaultLat,
+                defaultLon,
+                "Local padrão: Centro do Rio"
+              );
+
               carregarPlaces(defaultLat, defaultLon, defaultRadius);
             },
             {
@@ -118,6 +162,7 @@
         } else {
           console.warn("Geolocalização não suportada no navegador");
           // fallback: Rio
+          setUserMarker(defaultLat, defaultLon, "Local padrão: Centro do Rio");
           carregarPlaces(defaultLat, defaultLon, defaultRadius);
         }
       }
