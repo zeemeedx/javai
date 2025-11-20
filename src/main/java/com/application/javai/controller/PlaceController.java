@@ -22,7 +22,7 @@ public class PlaceController {
     public List<PlaceDTO> listarPlaces(
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lon,
-            @RequestParam(required = false, defaultValue = "4000") Integer radius
+            @RequestParam(required = false, defaultValue = "1000") Integer radius
     ) {
         // Se não vier lat/lon, usa Rio de Janeiro como padrão
         if (lat == null || lon == null) {
