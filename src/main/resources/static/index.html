@@ -1,126 +1,130 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
     <style>
-        :root {
-            --primary-color: #007bff; /* Azul vibrante */
-            --secondary-color: #28a745; /* Verde para sucesso */
-            --background-color: #f4f7f6; /* Cinza claro suave */
-            --card-background: #ffffff; /* Branco puro para o container */
-            --text-color: #333;
-            --border-radius: 8px;
-            --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-        }
+      :root {
+        --primary-color: #007bff; /* Azul vibrante */
+        --secondary-color: #28a745; /* Verde para sucesso */
+        --background-color: #f4f7f6; /* Cinza claro suave */
+        --card-background: #ffffff; /* Branco puro para o container */
+        --text-color: #333;
+        --border-radius: 8px;
+        --box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: var(--background-color);
-            /* Centraliza o conteúdo na vertical e horizontal */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px; /* Garante espaço em telas pequenas */
-            box-sizing: border-box;
-        }
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: var(--background-color);
+        /* Centraliza o conteúdo na vertical e horizontal */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 20px; /* Garante espaço em telas pequenas */
+        box-sizing: border-box;
+      }
 
-        .container {
-            width: 100%;
-            max-width: 400px; /* Limita a largura do formulário */
-            padding: 30px;
-            background-color: var(--card-background);
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow); /* Sombra suave para profundidade */
-            box-sizing: border-box;
-        }
+      .container {
+        width: 100%;
+        max-width: 400px; /* Limita a largura do formulário */
+        padding: 30px;
+        background-color: var(--card-background);
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow); /* Sombra suave para profundidade */
+        box-sizing: border-box;
+      }
 
-        #login-form h2 {
-            text-align: center;
-            color: var(--text-color);
-            margin-bottom: 30px;
-            font-size: 1.8em;
-            border-bottom: 2px solid var(--primary-color); /* Linha decorativa */
-            padding-bottom: 10px;
-        }
+      #login-form h2 {
+        text-align: center;
+        color: var(--text-color);
+        margin-bottom: 30px;
+        font-size: 1.8em;
+        border-bottom: 2px solid var(--primary-color); /* Linha decorativa */
+        padding-bottom: 10px;
+      }
 
-        .input-group {
-            margin-bottom: 20px;
-        }
+      .input-group {
+        margin-bottom: 20px;
+      }
 
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: var(--text-color);
-            font-size: 0.95em;
-        }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: var(--text-color);
+        font-size: 0.95em;
+      }
 
-        .input-group input[type="email"],
-        .input-group input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: var(--border-radius);
-            box-sizing: border-box;
-            transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
+      .input-group input[type="email"],
+      .input-group input[type="password"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: var(--border-radius);
+        box-sizing: border-box;
+        transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      }
 
-        .input-group input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-            outline: none;
-        }
+      .input-group input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+      }
 
-        button[type="submit"] {
-            width: 100%;
-            padding: 12px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            letter-spacing: 1px;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
+      button[type="submit"] {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--border-radius);
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: bold;
+        letter-spacing: 1px;
+        transition: background-color 0.3s ease, transform 0.1s ease;
+      }
 
-        button[type="submit"]:hover {
-            background-color: #0056b3;
-        }
+      button[type="submit"]:hover {
+        background-color: #0056b3;
+      }
 
-        button[type="submit"]:active {
-            transform: translateY(1px);
-        }
+      button[type="submit"]:active {
+        transform: translateY(1px);
+      }
 
-        #message {
-            text-align: center;
-            margin-top: 15px;
-            padding: 10px;
-            font-weight: bold;
-        }
+      #message {
+        text-align: center;
+        margin-top: 15px;
+        padding: 10px;
+        font-weight: bold;
+      }
     </style>
-    </head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <form id="login-form">
-            <h2>Login</h2>
-            <div class="input-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
-            </div>
-            <button type="submit">Login</button>
-            <p id="message"></p>
-        </form>
+      <form id="login-form" method="post" action="/login">
+        <h2>Login</h2>
+        <div class="input-group">
+          <label for="email">Email</label>
+          <!-- name="username" é o que o Spring espera -->
+          <input type="email" id="email" name="username" required />
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <!-- name="password" idem -->
+          <input type="password" id="password" name="password" required />
+        </div>
+        <button type="submit">Login</button>
+        <p id="message"></p>
+      </form>
     </div>
-    <script src="js/script.js"></script>
-</body>
+    <!-- <script src="js/script.js"></script> -->
+    <!-- // por enquanto, não intercepta o submit
+// deixa o Spring Security cuidar do POST /login -->
+  </body>
 </html>
