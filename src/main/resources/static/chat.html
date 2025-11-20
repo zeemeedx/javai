@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        :root {
+            --primary-color: #007bff; /* Azul para botões e destaque */
+            --secondary-color: #f8f9fa; /* Fundo do container/sidebar */
+            --background-color: #e9ecef; /* Fundo principal da tela */
+            --message-bg-user: #dcf8c6; /* Fundo da mensagem do usuário */
+            --message-bg-other: #ffffff; /* Fundo da mensagem do outro */
+            --text-color: #333;
+            --border-radius-card: 12px;
+            --border-radius-message: 18px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .chat-app-container {
+            display: flex;
+            width: 90vw; /* 90% da largura da viewport */
+            max-width: 1200px;
+            height: 90vh; /* 90% da altura da viewport */
+            max-height: 800px;
+            border-radius: var(--border-radius-card);
+            overflow: hidden; /* Importante para que a sombra não vaze */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- 1. SIDEBAR DE CONTATOS --- */
+        .sidebar {
+            width: 30%;
+            min-width: 280px;
+            background-color: var(--secondary-color);
+            border-right: 1px solid #dee2e6;
+            overflow-y: auto; /* Scroll vertical para a lista de contatos */
+            padding: 10px 0;
+        }
+
+        .sidebar h3 {
+            padding: 10px 20px;
+            margin: 0;
+            color: var(--primary-color);
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .contact-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s;
+        }
+
+        .contact-item:hover, .contact-item.active {
+            background-color: #e2e6ea;
+        }
+
+        .contact-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        /* --- 2. ÁREA PRINCIPAL DO CHAT --- */
+        .chat-area {
+            flex-grow: 1; /* Ocupa o restante do espaço */
+            display: flex;
+            flex-direction: column;
+            background-color: var(--message-bg-other);
+        }
+
+        .chat-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #dee2e6;
+            font-weight: bold;
+            background-color: var(--secondary-color);
+        }
+
+        .messages-container {
+            flex-grow: 1;
+            padding: 20px;
+            overflow-y: auto; /* Scroll vertical para as mensagens */
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* Espaço entre as mensagens */
+        }
+
+        .message {
+            max-width: 65%;
+            padding: 10px 15px;
+            border-radius: var(--border-radius-message);
+            line-height: 1.4;
+            color: var(--text-color);
+            word-wrap: break-word; /* Garante que mensagens longas quebrem */
+        }
+
+        /* Estilo para a mensagem do usuário (direita) */
+        .message.user {
+            background-color: var(--message-bg-user);
+            align-self: flex-end; /* Alinha à direita */
+            border-bottom-right-radius: 4px; /* Pequeno ajuste no canto */
+        }
+
+        /* Estilo para a mensagem do outro (esquerda) */
+        .message.other {
+            background-color: var(--message-bg-other);
+            border: 1px solid #ccc;
+            align-self: flex-start; /* Alinha à esquerda */
+            border-bottom-left-radius: 4px; /* Pequeno ajuste no canto */
+        }
+
+        /* --- 3. CAMPO DE ENTRADA --- */
+        .input-area {
+            padding: 15px 20px;
+            border-top: 1px solid #dee2e6;
+            display: flex;
+            background-color: var(--secondary-color);
+        }
+
+        .input-area input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius-message);
+            margin-right: 10px;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .input-area button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-message);
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .input-area button:hover {
+            background-color: #0056b3;
+        }
+
+        /* --- MEDIA QUERIES para Responsividade --- */
+        @media (max-width: 768px) {
+            .chat-app-container {
+                flex-direction: column;
+                height: 100vh;
+                width: 100vw;
+                border-radius: 0;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-height: 150px; /* Ajusta a altura mínima para o mobile */
+                max-height: 30%;
+                border-right: none;
+                border-bottom: 1px solid #dee2e6;
+            }
+            
+            /* Em mobile, a sidebar deve cobrir 100% da largura */
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .chat-area {
+                height: 70%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-app-container">
+
+        <div class="sidebar">
+            <h3>Contatos</h3>
+            <ul class="contact-list">
+                <li class="contact-item active">
+                    <div class="contact-avatar">J</div>
+                    <span>João Silva</span>
+                </li>
+                <li class="contact-item">
+                    <div class="contact-avatar">M</div>
+                    <span>Maria Oliveira</span>
+                </li>
+                <li class="contact-item">
+                    <div class="contact-avatar">A</div>
+                    <span>Administrador</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="chat-area">
+            <div class="chat-header">Conversando com João Silva</div>
+            
+            <div class="messages-container" id="messages-container">
+                <div class="message other">Olá! Tudo bem?</div>
+                
+                <div class="message user">Tudo ótimo! E com você?</div>
+                
+                <div class="message other">Vamos marcar um rolê?</div>
+                
+                <div class="message user">Claro!</div>
+                
+                </div>
+
+            <div class="input-area">
+                <input type="text" id="message-input" placeholder="Digite sua mensagem...">
+                <button id="send-button">Enviar</button>
+            </div>
+        </div>
+    </div>
+    
+    </body>
+</html>
