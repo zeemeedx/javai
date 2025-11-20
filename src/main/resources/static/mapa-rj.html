@@ -111,7 +111,7 @@
       /* Botão customizado para o Leaflet */
       .leaflet-control-custom {
         background-color: white;
-        border: 2px solid rgba(0,0,0,0.2);
+        border: 2px solid rgba(0, 0, 0, 0.2);
         background-clip: padding-box;
         border-radius: 4px;
         width: 34px !important;
@@ -121,7 +121,7 @@
         font-size: 1.2rem;
         cursor: pointer;
       }
-      
+
       /* Ícone de círculo azul para a localização real do usuário */
       .blue-circle-icon div {
         width: 16px;
@@ -142,6 +142,22 @@
     <div id="coords">Localização: carregando...</div>
 
     <div id="map"></div>
+
+    <div id="account-panel" class="account-panel" style="display: none">
+      <div class="account-panel-header">
+        <h3>Sua conta</h3>
+        <button
+          class="account-panel-close"
+          id="close-account-panel"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+      <div id="account-content">
+        <small>Carregando informações...</small>
+      </div>
+    </div>
 
     <nav class="bottom-nav">
       <button class="tab" data-tab="historico">
@@ -207,12 +223,12 @@
         popupAnchor: [1, -34],
         shadowSize: [41, 41],
       });
-      
+
       const blueCircleIcon = L.divIcon({
-        className: 'blue-circle-icon',
-        html: '<div></div>',
+        className: "blue-circle-icon",
+        html: "<div></div>",
         iconSize: [16, 16],
-        iconAnchor: [8, 8]
+        iconAnchor: [8, 8],
       });
 
       // 📌 Pino vermelho (marcador de busca), móvel
@@ -220,32 +236,39 @@
       // 🔵 Círculo azul (localização real), agora como um marcador estático
       let locationMarker = null;
 
-
       // --------- Controle Customizado "Home" ---------
       const HomeButton = L.Control.extend({
         options: {
-          position: 'topright'
+          position: "topright",
         },
         onAdd: function (map) {
-          const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-          btn.innerHTML = '🏠';
-          
-          L.DomEvent.on(btn, 'click', function (e) {
+          const btn = L.DomUtil.create(
+            "div",
+            "leaflet-bar leaflet-control leaflet-control-custom"
+          );
+          btn.innerHTML = "🏠";
+
+          L.DomEvent.on(btn, "click", function (e) {
             L.DomEvent.stop(e); // Impede que o clique chegue no mapa
-            
+
             if (userActualLocation) {
               map.setView(userActualLocation, 14);
-              setSearchMarker(userActualLocation.lat, userActualLocation.lng, "Buscando a partir da sua localização");
+              setSearchMarker(
+                userActualLocation.lat,
+                userActualLocation.lng,
+                "Buscando a partir da sua localização"
+              );
               carregarPlaces(userActualLocation.lat, userActualLocation.lng);
             } else {
-              alert("Ainda não foi possível obter sua localização inicial. Tente recarregar a página.");
+              alert(
+                "Ainda não foi possível obter sua localização inicial. Tente recarregar a página."
+              );
             }
           });
           return btn;
-        }
+        },
       });
       map.addControl(new HomeButton());
-
 
       // --------- Lógica de Eventos ---------
       map.on("click", function (e) {
@@ -257,14 +280,55 @@
       });
 
       // --------- Funções Auxiliares ---------
+      const accountPanel = document.getElementById("account-panel");
+      const accountContent = document.getElementById("account-content");
+      const closeAccountBtn = document.getElementById("close-account-panel");
+
+      async function abrirPainelConta() {
+        accountPanel.style.display = "block";
+        accountContent.innerHTML = "<small>Carregando informações...</small>";
+
+        try {
+          const resp = await fetch("/api/me");
+          if (!resp.ok) {
+            accountContent.innerHTML = `<p>Não foi possível carregar seus dados (${resp.status}).</p>`;
+            return;
+          }
+
+          const user = await resp.json();
+
+          // 👇 sem a frase "Esses dados vêm do usuário..."
+          accountContent.innerHTML = `
+      <p><strong>Nome:</strong><br/>${user.nome ?? "—"}</p>
+      <p><strong>Email:</strong><br/>${user.email ?? "—"}</p>
+      <p><strong>ID interno:</strong><br/><code>${user.id}</code></p>
+    `;
+        } catch (e) {
+          console.error("Erro ao carregar /api/me:", e);
+          accountContent.innerHTML =
+            "<p>Ocorreu um erro ao carregar suas informações. Tente novamente mais tarde.</p>";
+        }
+      }
+
+      function fecharPainelConta() {
+        accountPanel.style.display = "none";
+      }
+
+      // botão X fecha sempre
+      closeAccountBtn.addEventListener("click", () => {
+        fecharPainelConta();
+      });
+
       function atualizarCoordsLabel(texto) {
         coordsDiv.textContent = texto;
       }
-      
+
       // Define a posição do PINO VERMELHO de busca
       function setSearchMarker(lat, lon, label) {
         console.log("Pino de busca movido para:", lat, lon, "→", label);
-        atualizarCoordsLabel(`Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+        atualizarCoordsLabel(
+          `Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`
+        );
 
         if (searchMarker) {
           searchMarker.setLatLng([lat, lon]);
@@ -304,7 +368,11 @@
       }
 
       function combinarRole(placeId) {
-        alert("Combinar rolê no lugar ID " + placeId + " (futuro: abrir fluxo de grupo/votação)");
+        alert(
+          "Combinar rolê no lugar ID " +
+            placeId +
+            " (futuro: abrir fluxo de grupo/votação)"
+        );
       }
 
       function carregarPosicaoPadrao(motivo) {
@@ -322,7 +390,8 @@
         }
 
         navigator.geolocation.getCurrentPosition(
-          (pos) => { // Sucesso ao obter localização
+          (pos) => {
+            // Sucesso ao obter localização
             const userLat = pos.coords.latitude;
             const userLon = pos.coords.longitude;
             userActualLocation = { lat: userLat, lng: userLon };
@@ -331,16 +400,21 @@
 
             // Adiciona o marcador azul estático da localização real
             if (locationMarker) locationMarker.remove();
-            locationMarker = L.marker([userLat, userLon], { 
+            locationMarker = L.marker([userLat, userLon], {
               icon: blueCircleIcon,
-              zIndexOffset: -100 // Garante que fique "atrás" do pino vermelho se sobreposto
+              zIndexOffset: -100, // Garante que fique "atrás" do pino vermelho se sobreposto
             }).addTo(map);
 
             // Posiciona o pino de busca inicial na localização do usuário
-            setSearchMarker(userLat, userLon, "Buscando a partir da sua localização");
+            setSearchMarker(
+              userLat,
+              userLon,
+              "Buscando a partir da sua localização"
+            );
             carregarPlaces(userLat, userLon, defaultRadius);
           },
-          (err) => { // Erro ao obter localização
+          (err) => {
+            // Erro ao obter localização
             atualizarCoordsLabel("Não foi possível obter sua localização.");
             carregarPosicaoPadrao(`Erro ao obter localização: ${err.message}`);
           },
@@ -351,15 +425,29 @@
       // Inicia tudo
       inicializarMapa();
 
-      // Tabs (lógica original mantida)
       const tabs = document.querySelectorAll(".bottom-nav .tab");
+
       tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
           tabs.forEach((t) => t.classList.remove("active"));
           tab.classList.add("active");
+
           const name = tab.dataset.tab;
-          if (name !== "explorar") {
-            alert('Aba "' + name + '" ainda não implementada.');
+
+          if (name === "conta") {
+            abrirPainelConta();
+          } else {
+            fecharPainelConta(); // 👈 garante que a aba Conta some
+
+            if (name !== "explorar") {
+              alert(
+                'Aba "' +
+                  name +
+                  '" ainda não implementada. Aqui depois entra a tela de ' +
+                  name +
+                  "."
+              );
+            }
           }
         });
       });
