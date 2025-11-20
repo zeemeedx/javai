@@ -48,21 +48,29 @@
 
       const markersLayer = L.layerGroup().addTo(map);
 
+      // Ícone vermelho customizado (parecido com o marker padrão do Leaflet)
+      const userIcon = L.icon({
+        iconUrl:
+          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
+        shadowUrl:
+          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+        iconSize: [25, 41], // tamanho do ícone
+        iconAnchor: [12, 41], // ponto do ícone que fica na coordenada
+        popupAnchor: [1, -34], // onde o popup abre em relação ao ícone
+        shadowSize: [41, 41],
+      });
+
       // 🔴 Marker especial para localização do usuário / RJ padrão
       let userMarker = null;
 
       function setUserMarker(lat, lon, label) {
         console.log("userMarker vai pra:", lat, lon, "→", label);
+
         if (userMarker) {
           userMarker.setLatLng([lat, lon]);
           userMarker.setPopupContent(label);
         } else {
-          userMarker = L.circleMarker([lat, lon], {
-            radius: 8,
-            color: "red",
-            fillColor: "red",
-            fillOpacity: 0.9,
-          })
+          userMarker = L.marker([lat, lon], { icon: userIcon })
             .addTo(map)
             .bindPopup(label);
         }
@@ -103,7 +111,7 @@
           console.error("Erro ao carregar places:", error);
         }
       }
-      
+
       map.on("click", function (e) {
         const lat = e.latlng.lat;
         const lon = e.latlng.lng;
