@@ -31,19 +31,44 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
+
             .authorizeHttpRequests(auth -> auth
+                // 🔓 DEIXA A PÁGINA DE LOGIN (/) E ESTÁTICOS LIVRES
+                .requestMatchers(
+                    "/",              // index.html (login)
+                    "/index.html",   // às vezes o browser pede explicitamente
+                    "/css/**",
+                    "/js/**",
+                    "/images/**",
+                    "/webjars/**"
+                ).permitAll()
+
+                // 🔓 se quiser manter essas APIs públicas
                 .requestMatchers("/api/auth/**", "/api/users").permitAll()
+
+                // 🔒 TODO O RESTO (inclui /mapa-rj.html, /api/places, etc.) PRECISA DE LOGIN
                 .anyRequest().authenticated()
             )
+
             .authenticationProvider(authenticationProvider())
-            .formLogin(form -> form.permitAll())
+
+            .formLogin(form -> form
+                // nossa "loginPage" é o próprio "/"
+                .loginPage("/")                // GET → mostra o index.html (login)
+                .loginProcessingUrl("/login")  // POST do form
+                .defaultSuccessUrl("/mapa-rj.html", true) // DEPOIS DO LOGIN, VAI PRO MAPA
+                .failureUrl("/?error")         // erro → volta para "/" com ?error
+                .permitAll()
+            )
+
             .logout(logout -> logout
                 .logoutUrl("/api/auth/logout")
                 .logoutSuccessHandler((request, response, authentication) ->
                     response.setStatus(HttpServletResponse.SC_OK)
-                    )
+                )
             );
 
         return http.build();
