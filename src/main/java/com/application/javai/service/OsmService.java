@@ -10,6 +10,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 import com.application.javai.dto.PlaceDTO;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,29 +27,33 @@ public class OsmService {
         this.webClient = WebClient.builder()
                 .baseUrl("https://overpass-api.de/api")
                 .defaultHeader(HttpHeaders.USER_AGENT, "javai-app/1.0 (seu-email@example.com)")
+                .codecs(configurer -> configurer
+                        .defaultCodecs()
+                        .maxInMemorySize(2 * 1024 * 1024)
+                )
                 .build();
         this.objectMapper = new ObjectMapper();
     }
 
     public List<PlaceDTO> buscarLugares(
-            double lat,
-            double lon,
-            int radiusMeters,
-            String amenityRegex
+        double lat,
+        double lon,
+        int radiusMeters,
+        String amenityRegex
     ) {
         try {
             String overpassQuery = String.format(
-                    Locale.US, // 👈 força ponto como separador decimal
-                    """
-                    [out:json][timeout:25];
-                    (
-                      node["amenity"~"%s"](around:%d,%.6f,%.6f);
-                      way["amenity"~"%s"](around:%d,%.6f,%.6f);
-                    );
-                    out center;
-                    """,
-                    amenityRegex, radiusMeters, lat, lon,
-                    amenityRegex, radiusMeters, lat, lon
+                Locale.US,
+                """
+                [out:json][timeout:25];
+                (
+                node["amenity"~"%s"](around:%d,%.6f,%.6f);
+                way["amenity"~"%s"](around:%d,%.6f,%.6f);
+                );
+                out center;
+                """,
+                amenityRegex, radiusMeters, lat, lon,
+                amenityRegex, radiusMeters, lat, lon
             );
 
             System.out.println("=== Overpass QL ===");
@@ -55,13 +61,7 @@ public class OsmService {
 
             String body = "data=" + URLEncoder.encode(overpassQuery, StandardCharsets.UTF_8);
 
-            String responseJson = webClient.post()
-                    .uri("/interpreter")
-                    .contentType(MediaType.APPLICATION_FORM_URLENCODED)
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(String.class)
-                    .block();
+            String responseJson = callOverpassWithRetry(body, 3);
 
             System.out.println("=== Overpass Response (inicio) ===");
             if (responseJson != null && responseJson.length() > 500) {
@@ -73,10 +73,11 @@ public class OsmService {
             return parseOverpassResponse(responseJson);
 
         } catch (Exception e) {
-            System.err.println("Erro ao consultar Overpass: " + e.getMessage());
-            return List.of();
+            System.err.println("Erro ao consultar Overpass (apos retries): " + e.getMessage());
+            return List.of(); // placeService pode tratar fallback
         }
     }
+
 
     private List<PlaceDTO> parseOverpassResponse(String json) throws Exception {
         List<PlaceDTO> result = new ArrayList<>();
@@ -129,4 +130,49 @@ public class OsmService {
         System.out.println("Total de elementos convertidos em PlaceDTO: " + result.size());
         return result;
     }
+
+    private String callOverpassWithRetry(String body, int maxAttempts) {
+        int attempt = 0;
+        while (true) {
+            attempt++;
+            try {
+                System.out.println("Chamando Overpass (tentativa " + attempt + "/" + maxAttempts + ")");
+                return webClient.post()
+                        .uri("/interpreter")
+                        .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+                        .bodyValue(body)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+            } catch (WebClientResponseException ex) {
+                // Erros HTTP (4xx, 5xx)
+                int statusCode = ex.getStatusCode().value();
+                System.err.println("Erro HTTP da Overpass: " + statusCode + " (tentativa " + attempt + ")");
+
+                // Só faz retry em 5xx
+                if (statusCode >= 500 && statusCode < 600 && attempt < maxAttempts) {
+                    sleepSilently(1000L * attempt); // 1s, 2s, 3s...
+                    continue;
+                }
+                throw ex;
+            } catch (WebClientRequestException ex) {
+                // Timeout, problemas de rede, DNS etc.
+                System.err.println("Erro de rede ao chamar Overpass (tentativa " + attempt + "): " + ex.getMessage());
+                if (attempt < maxAttempts) {
+                    sleepSilently(1000L * attempt);
+                    continue;
+                }
+                throw ex;
+            }
+        }
+    }
+
+    private void sleepSilently(long millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ignored) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
 }
