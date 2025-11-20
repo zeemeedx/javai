@@ -210,6 +210,83 @@
         position: relative;
         z-index: 1;
       }
+      .name-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .name-row .name {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .edit-icon {
+        border: none;
+        background: transparent;
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 2px;
+        border-radius: 999px;
+      }
+
+      .edit-icon:hover {
+        background: rgba(148, 163, 184, 0.15);
+        color: #e5e7eb;
+      }
+
+      .name-edit {
+        margin-top: 6px;
+        display: flex;
+        gap: 6px;
+      }
+
+      .name-edit input {
+        flex: 1;
+        padding: 4px 6px;
+        border-radius: 8px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.85rem;
+      }
+
+      .name-edit input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .name-edit button {
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+
+      #name-save-btn {
+        background: #3b82f6;
+        color: #e5e7eb;
+      }
+
+      #name-save-btn:hover {
+        background: #2563eb;
+      }
+
+      #name-cancel-btn {
+        background: #111827;
+        color: #e5e7eb;
+      }
+
+      #name-cancel-btn:hover {
+        background: #1f2937;
+      }
+
+      /* utilitária pra esconder blocos */
+      .hidden {
+        display: none;
+      }
 
       .avatar-circle {
         width: 52px;
@@ -373,7 +450,30 @@
           />
 
           <div class="profile-main">
-            <div class="name" id="account-name">Carregando...</div>
+            <div class="name-row">
+              <span class="name" id="account-name">Carregando...</span>
+              <button
+                type="button"
+                class="edit-icon"
+                id="edit-name-btn"
+                title="Editar nome"
+              >
+                ✏️
+              </button>
+            </div>
+
+            <!-- modo edição do nome -->
+            <div class="name-edit hidden" id="name-edit-container">
+              <input
+                type="text"
+                id="name-edit-input"
+                maxlength="60"
+                placeholder="Digite seu nome"
+              />
+              <button type="button" id="name-save-btn">Salvar</button>
+              <button type="button" id="name-cancel-btn">Cancelar</button>
+            </div>
+
             <div class="email" id="account-email">—</div>
             <div class="profile-tags">
               <span class="chip">Usuário ativo</span>
@@ -442,6 +542,11 @@
       const avatarInputEl = document.getElementById("avatar-input");
       const rolesListEl = document.getElementById("roles-list");
       const friendsListEl = document.getElementById("friends-list");
+      const editNameBtn = document.getElementById("edit-name-btn");
+      const nameEditContainer = document.getElementById("name-edit-container");
+      const nameEditInput = document.getElementById("name-edit-input");
+      const nameSaveBtn = document.getElementById("name-save-btn");
+      const nameCancelBtn = document.getElementById("name-cancel-btn");
 
       let avatarCustomizado = false;
 
@@ -645,6 +750,53 @@
             }
           }
         });
+      });
+
+      // ---- Edição de nome ----
+      editNameBtn.addEventListener("click", () => {
+        const currentName = accountNameEl.textContent.trim();
+        nameEditInput.value =
+          currentName === "Carregando..." || currentName === ""
+            ? ""
+            : currentName;
+        nameEditContainer.classList.remove("hidden");
+        nameEditInput.focus();
+        nameEditInput.select();
+      });
+
+      nameCancelBtn.addEventListener("click", () => {
+        nameEditContainer.classList.add("hidden");
+      });
+
+      nameSaveBtn.addEventListener("click", async () => {
+        const novoNome = nameEditInput.value.trim();
+        if (!novoNome) {
+          alert("O nome não pode ser vazio.");
+          return;
+        }
+
+        try {
+          const resp = await fetch("/api/me/name", {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ nome: novoNome }),
+          });
+
+          if (!resp.ok) {
+            console.error("Erro ao atualizar nome:", resp.status);
+            alert("Não foi possível atualizar seu nome. Tente novamente.");
+            return;
+          }
+
+          const data = await resp.json();
+          accountNameEl.textContent = data.nome ?? novoNome;
+          nameEditContainer.classList.add("hidden");
+        } catch (e) {
+          console.error("Erro na requisição de update de nome:", e);
+          alert("Ocorreu um erro ao atualizar seu nome.");
+        }
       });
 
       // -------- Mapa + OSM / Overpass --------

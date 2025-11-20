@@ -5,7 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal; // ajuste o pacote da sua entidade User
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +26,19 @@ public class AccountController {
         this.userRepository = userRepository;
     }
 
+    // DTO interno só pra esse controller
+    public static class UpdateNameRequest {
+        private String nome;
+
+        public String getNome() {
+            return nome;
+        }
+
+        public void setNome(String nome) {
+            this.nome = nome;
+        }
+    }
+
     @GetMapping("/api/me")
     public ResponseEntity<UserDTO> me(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
@@ -34,6 +49,36 @@ public class AccountController {
 
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+
+        UserDTO dto = new UserDTO(
+            user.getId(),
+            user.getNome(),
+            user.getEmail()
+        );
+
+        return ResponseEntity.ok(dto);
+    }
+
+    @PatchMapping("/api/me/name")
+    public ResponseEntity<UserDTO> updateName(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody UpdateNameRequest body) {
+
+        if (userDetails == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        if (body.getNome() == null || body.getNome().trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        String email = userDetails.getUsername();
+
+        User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+
+        user.setNome(body.getNome().trim());
+        userRepository.save(user);
 
         UserDTO dto = new UserDTO(
             user.getId(),
