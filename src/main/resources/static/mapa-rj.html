@@ -218,11 +218,16 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        /* gradiente padrão quando não tem foto */
         background: radial-gradient(circle at 30% 20%, #38bdf8, #1d4ed8);
         color: #e5e7eb;
         font-weight: 700;
         font-size: 1.4rem;
         box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+        cursor: pointer; /* 👈 indica que é clicável */
+        overflow: hidden; /* corta bordas da imagem */
+        background-size: cover; /* imagem cobre o círculo */
+        background-position: center; /* centraliza a imagem */
       }
 
       .profile-main {
@@ -351,7 +356,22 @@
         </div>
 
         <div class="account-profile">
-          <div class="avatar-circle" id="account-avatar">?</div>
+          <div
+            class="avatar-circle"
+            id="account-avatar"
+            title="Clique para alterar sua foto"
+          >
+            ?
+          </div>
+
+          <!-- input de arquivo escondido -->
+          <input
+            type="file"
+            id="avatar-input"
+            accept="image/*"
+            style="display: none"
+          />
+
           <div class="profile-main">
             <div class="name" id="account-name">Carregando...</div>
             <div class="email" id="account-email">—</div>
@@ -419,8 +439,11 @@
       const accountNameEl = document.getElementById("account-name");
       const accountEmailEl = document.getElementById("account-email");
       const accountAvatarEl = document.getElementById("account-avatar");
+      const avatarInputEl = document.getElementById("avatar-input");
       const rolesListEl = document.getElementById("roles-list");
       const friendsListEl = document.getElementById("friends-list");
+
+      let avatarCustomizado = false;
 
       const mockRoles = [
         {
@@ -457,6 +480,48 @@
           parts[parts.length - 1].charAt(0).toUpperCase()
         );
       }
+      // clique no avatar abre seletor de arquivo
+      accountAvatarEl.addEventListener("click", () => {
+        avatarInputEl.click();
+      });
+
+      // quando o usuário escolhe uma imagem
+      avatarInputEl.addEventListener("change", () => {
+        const file = avatarInputEl.files[0];
+        if (!file) return;
+
+        // opcional: limitar tamanho/tipo
+        if (!file.type.startsWith("image/")) {
+          alert("Por favor, selecione uma imagem válida.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          accountAvatarEl.style.backgroundImage = `url('${dataUrl}')`;
+          accountAvatarEl.textContent = "";
+          avatarCustomizado = true; // 👈 marca que agora é foto, não iniciais
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        fetch("/api/me/avatar", {
+          method: "POST",
+          body: formData,
+        })
+          .then((resp) => {
+            if (!resp.ok) {
+              console.error("Falha ao enviar avatar:", resp.status);
+              // opcional: mostrar toast msg
+            }
+          })
+          .catch((err) => {
+            console.error("Erro na requisição de avatar:", err);
+          });
+      });
 
       function renderMockRoles() {
         rolesListEl.innerHTML = "";
@@ -499,7 +564,12 @@
 
         accountNameEl.textContent = "Carregando...";
         accountEmailEl.textContent = "—";
-        accountAvatarEl.textContent = "?";
+
+        // se ainda não foi customizado, mostra "?"
+        if (!avatarCustomizado) {
+          accountAvatarEl.textContent = "?";
+          accountAvatarEl.style.backgroundImage = ""; // gradiente padrão do CSS
+        }
 
         try {
           const resp = await fetch("/api/me");
@@ -512,9 +582,17 @@
           const user = await resp.json();
           accountNameEl.textContent = user.nome ?? "Usuário sem nome";
           accountEmailEl.textContent = user.email ?? "—";
-          accountAvatarEl.textContent = initialsFromName(
-            user.nome ?? user.email
-          );
+
+          // 👉 Só coloca iniciais se NÃO tiver foto customizada
+          if (!avatarCustomizado) {
+            accountAvatarEl.textContent = initialsFromName(
+              user.nome ?? user.email
+            );
+            accountAvatarEl.style.backgroundImage = "";
+          } else {
+            // já tem foto, garante que o texto fique vazio
+            accountAvatarEl.textContent = "";
+          }
         } catch (e) {
           console.error("Erro ao carregar /api/me:", e);
           accountNameEl.textContent = "Erro ao carregar suas informações";
