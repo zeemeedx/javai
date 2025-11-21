@@ -775,12 +775,36 @@
       .sidebar-header {
         padding: 10px 12px;
         border-bottom: 1px solid #111827;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .sidebar-header-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
       }
 
       .sidebar-header h3 {
-        margin: 0 0 6px;
+        margin: 0;
         font-size: 0.9rem;
         color: #e5e7eb;
+      }
+
+      .sidebar-header button {
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        background: rgba(59, 130, 246, 0.18);
+        color: #cfe3ff;
+        border-radius: 999px;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        cursor: pointer;
+      }
+
+      .sidebar-header button:hover {
+        background: rgba(59, 130, 246, 0.3);
       }
 
       .sidebar-header input {
@@ -1190,6 +1214,118 @@
 
       .favorite-item-row button:hover {
         background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      }
+
+      .group-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(2, 6, 23, 0.7);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2600;
+      }
+
+      .group-modal-overlay.visible {
+        display: flex;
+      }
+
+      .group-modal {
+        width: min(480px, 92vw);
+        max-height: 75vh;
+        background: #020617;
+        border-radius: 20px;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        box-shadow: 0 35px 80px rgba(2, 6, 23, 0.95);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .group-modal header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .group-modal header h3 {
+        margin: 0;
+        font-size: 1rem;
+      }
+
+      .group-modal header button {
+        border: none;
+        background: rgba(15, 23, 42, 0.8);
+        color: #cbd5f5;
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .group-modal header button:hover {
+        background: rgba(59, 130, 246, 0.35);
+      }
+
+      .group-modal input {
+        padding: 8px 10px;
+        border-radius: 12px;
+        border: 1px solid #1f2937;
+        background: #0f172a;
+        color: #e5e7eb;
+        font-size: 0.85rem;
+      }
+
+      .group-modal input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .group-friends-list {
+        flex: 1;
+        overflow-y: auto;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 12px;
+        padding: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .group-friend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+      }
+
+      .group-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .group-modal-actions button {
+        border-radius: 999px;
+        padding: 8px 16px;
+        border: none;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+
+      .group-modal-actions button.primary {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: #f8fafc;
+      }
+
+      .group-modal-actions button.secondary {
+        background: rgba(15, 23, 42, 0.85);
+        color: #cbd5f5;
+        border: 1px solid rgba(148, 163, 184, 0.3);
       }
 
       .voting-modal-overlay {
@@ -1602,7 +1738,10 @@
         <!-- SIDEBAR: lista de amigos -->
         <aside class="sidebar">
           <div class="sidebar-header">
-            <h3>Amigos</h3>
+            <div class="sidebar-header-top">
+              <h3>Conversas</h3>
+              <button type="button" id="btn-open-create-group">Criar grupo</button>
+            </div>
             <input
               type="text"
               id="contact-search"
@@ -1711,6 +1850,33 @@
           </button>
           <button type="button" class="primary" id="voting-modal-primary">
             Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="group-modal-overlay" class="group-modal-overlay">
+      <div class="group-modal">
+        <header>
+          <h3>Novo grupo</h3>
+          <button type="button" id="group-modal-close">✕</button>
+        </header>
+        <input
+          type="text"
+          id="group-name-input"
+          placeholder="Nome do grupo"
+          maxlength="60"
+        />
+        <p style="margin:0;font-size:0.8rem;color:#94a3b8;">
+          Escolha os amigos para participar (você será o admin).
+        </p>
+        <div id="group-friends-list" class="group-friends-list"></div>
+        <div class="group-modal-actions">
+          <button type="button" class="secondary" id="group-modal-cancel">
+            Cancelar
+          </button>
+          <button type="button" class="primary" id="group-modal-create">
+            Criar grupo
           </button>
         </div>
       </div>
@@ -2464,6 +2630,9 @@
       const chatShareFavoriteBtn = document.getElementById(
         "chat-share-favorite"
       );
+      const chatCreateGroupBtn = document.getElementById(
+        "btn-open-create-group"
+      );
       const favoriteModalOverlay = document.getElementById(
         "favorite-modal-overlay"
       );
@@ -2482,6 +2651,14 @@
       const votingModalPrimaryBtn = document.getElementById(
         "voting-modal-primary"
       );
+      const groupModalOverlay = document.getElementById(
+        "group-modal-overlay"
+      );
+      const groupModalCloseBtn = document.getElementById("group-modal-close");
+      const groupModalCancelBtn = document.getElementById("group-modal-cancel");
+      const groupModalCreateBtn = document.getElementById("group-modal-create");
+      const groupNameInput = document.getElementById("group-name-input");
+      const groupFriendsListEl = document.getElementById("group-friends-list");
 
       let chatRooms = [];
       let chatContacts = [];
@@ -2492,6 +2669,7 @@
       let votingModalMode = null;
       let votingFavoriteSelection = [];
       let votingOptionRanking = [];
+      let groupModalSelectedIds = new Set();
 
       async function ensureCurrentUserProfile() {
         if (currentUserProfile) return;
@@ -3357,6 +3535,105 @@
         renderContactList(e.target.value);
       });
 
+      function openCreateGroupModal() {
+        if (!groupModalOverlay) return;
+        groupNameInput.value = "";
+        groupModalSelectedIds = new Set();
+        renderGroupFriendsList();
+        groupModalOverlay.classList.add("visible");
+      }
+
+      function closeCreateGroupModal() {
+        groupModalOverlay?.classList.remove("visible");
+      }
+
+      function renderGroupFriendsList(filter = "") {
+        if (!groupFriendsListEl) return;
+        groupFriendsListEl.innerHTML = "";
+        const term = filter.trim().toLowerCase();
+        const friends = chatContacts.filter((friend) => {
+          if (!term) return true;
+          return friend.nome?.toLowerCase().includes(term);
+        });
+
+        if (!friends.length) {
+          const empty = document.createElement("p");
+          empty.style.margin = "0";
+          empty.style.fontSize = "0.8rem";
+          empty.style.color = "#94a3b8";
+          empty.textContent = "Nenhum amigo disponível.";
+          groupFriendsListEl.appendChild(empty);
+          return;
+        }
+
+        friends.forEach((friend) => {
+          const row = document.createElement("label");
+          row.className = "group-friend-item";
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = groupModalSelectedIds.has(friend.id);
+          checkbox.addEventListener("change", () => {
+            if (checkbox.checked) {
+              groupModalSelectedIds.add(friend.id);
+            } else {
+              groupModalSelectedIds.delete(friend.id);
+            }
+          });
+          const span = document.createElement("span");
+          span.textContent = friend.nome || "Amigo";
+          row.appendChild(checkbox);
+          row.appendChild(span);
+          groupFriendsListEl.appendChild(row);
+        });
+      }
+
+      async function submitCreateGroup() {
+        if (!groupModalOverlay) return;
+        const name = groupNameInput.value.trim();
+        if (!name) {
+          showFeedbackToast("Informe um nome para o grupo.");
+          return;
+        }
+        if (!groupModalSelectedIds.size) {
+          showFeedbackToast("Selecione pelo menos um amigo.");
+          return;
+        }
+        try {
+          const resp = await fetch("/api/chat/rooms/group", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name,
+              participantIds: Array.from(groupModalSelectedIds),
+            }),
+          });
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+          if (!resp.ok) {
+            const text = await resp.text();
+            showFeedbackToast(text || "Não foi possível criar o grupo.");
+            return;
+          }
+          const room = await resp.json();
+          const exists = chatRooms.some((r) => r.id === room.id);
+          if (!exists) {
+            chatRooms.push(room);
+          }
+          closeCreateGroupModal();
+          renderContactList(contactSearchInput ? contactSearchInput.value : "");
+          await selecionarContato(room.id);
+          showFeedbackToast("Grupo criado!");
+        } catch (err) {
+          console.error("Erro ao criar grupo:", err);
+          showFeedbackToast("Erro ao criar grupo.");
+        }
+      }
+
       votingModalPrimaryBtn?.addEventListener("click", () =>
         submitVotingModal()
       );
@@ -3365,6 +3642,22 @@
       votingModalOverlay?.addEventListener("click", (event) => {
         if (event.target === votingModalOverlay) {
           closeVotingModal();
+        }
+      });
+
+      chatCreateGroupBtn?.addEventListener("click", () => openCreateGroupModal());
+      groupModalCloseBtn?.addEventListener("click", () =>
+        closeCreateGroupModal()
+      );
+      groupModalCancelBtn?.addEventListener("click", () =>
+        closeCreateGroupModal()
+      );
+      groupModalCreateBtn?.addEventListener("click", () =>
+        submitCreateGroup()
+      );
+      groupModalOverlay?.addEventListener("click", (event) => {
+        if (event.target === groupModalOverlay) {
+          closeCreateGroupModal();
         }
       });
 
@@ -3454,9 +3747,6 @@
           closeFavoriteModal();
         }
       });
-
-      // inicializa lista (sem abrir overlay ainda)
-      renderContactList();
 
       // ---------       </div>
       //</div>      </div>
