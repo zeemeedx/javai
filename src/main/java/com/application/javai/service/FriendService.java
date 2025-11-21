@@ -190,6 +190,16 @@ public class FriendService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public int contarPedidosRecebidosDoUsuarioLogado() {
+        User currentUser = getAuthenticatedUser();
+        long count = friendRequestRepository.countByReceiverIdAndStatus(
+                currentUser.getId(),
+                FriendRequestStatus.PENDING
+        );
+        return (int) Math.min(count, Integer.MAX_VALUE);
+    }
+
     @Transactional
     public void responderPedido(Long requestId, boolean aceitar) {
         User currentUser = getAuthenticatedUser();

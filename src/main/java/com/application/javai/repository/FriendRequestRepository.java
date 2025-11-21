@@ -49,4 +49,6 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
         """)
     List<FriendRequest> findByRequestedIdAndStatus(@Param("requestedId") Long requestedId,
                                                    @Param("status") FriendRequestStatus status);
+
+    long countByReceiverIdAndStatus(Long receiverId, FriendRequestStatus status);
 }

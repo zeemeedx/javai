@@ -89,6 +89,11 @@ public class FriendController {
         return friendService.listarPedidosRecebidosDoUsuarioLogado();
     }
 
+    @GetMapping("/requests/incoming/count")
+    public ResponseEntity<Integer> incomingCount() {
+        return ResponseEntity.ok(friendService.contarPedidosRecebidosDoUsuarioLogado());
+    }
+
     // POST /api/friends/requests/{id}/respond → aceitar/recusar
     // body: { "action": "ACCEPT" } ou { "action": "REJECT" }
     public static class RespondBody {
