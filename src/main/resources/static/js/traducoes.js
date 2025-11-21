@@ -3,7 +3,6 @@
 // Valor: tradução para o português
 
 const traducoes = {
-  // Mais comuns
   'parking': 'Estacionamento',
   'bench': 'Assento',
   'place_of_worship': 'Templo Religioso',
@@ -36,9 +35,7 @@ const traducoes = {
   'grave_yard': 'Cemitério',
   'police': 'Polícia',
   'dentist': 'Dentista',
-  'fire_station': 'Corpo de Bombeiros',
-  
-  // Outros comuns e úteis
+  'fire_station': 'Corpo de Bombeiros',  
   'car_wash': 'Lava-Jato',
   'library': 'Biblioteca',
   'marketplace': 'Mercado',
@@ -56,11 +53,10 @@ const traducoes = {
   'university': 'Universidade',
   'atm': 'Caixa Eletrônico',
   'taxi': 'Ponto de Táxi',
-
-  // Menos comuns mas podem aparecer
   'kindergarten': 'Jardim de Infância',
   'parking_space': 'Vaga de Estacionamento',
   'hunting_stand': 'Posto de Caça',
   'waste_disposal': 'Descarte de Lixo',
-  'parking_entrance': 'Entrada de Estacionamento'
+  'parking_entrance': 'Entrada de Estacionamento',
+  'unknown': 'Desconhecido'
 };

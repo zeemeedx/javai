@@ -776,6 +776,81 @@
           border-bottom: 1px solid #111827;
         }
       }
+
+      /* --- Custom Popup --- */
+      .custom-popup .leaflet-popup-content-wrapper {
+          background: #0f172a; /* um azul bem escuro */
+          color: #e2e8f0;
+          border: 1px solid #334155;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+      }
+
+      .custom-popup .leaflet-popup-content {
+          margin: 10px 14px;
+          font-size: 0.85rem;
+          line-height: 1.5;
+          width: 200px !important; /* Definir uma largura fixa para o popup */
+      }
+
+      .custom-popup .leaflet-popup-tip {
+          background: #0f172a;
+      }
+
+      .custom-popup .popup-header {
+          font-size: 1rem;
+          font-weight: 700;
+          color: #f1f5f9;
+          margin-bottom: 4px;
+          max-width: 220px; /* Evita que nomes longos quebrem o layout */
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+      }
+
+      .custom-popup .popup-type {
+          font-style: italic;
+          color: #94a3b8;
+          margin-bottom: 10px;
+      }
+
+      .custom-popup .popup-btn {
+          flex: 1;
+          padding: 6px 8px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          text-align: center;
+          border: none;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: background-color 0.2s, color 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+      }
+
+      .custom-popup .popup-actions {
+          display: flex;
+          gap: 8px;
+          margin-top: 12px; /* Adicionado um margin-top para separar do tipo */
+      }
+
+      .popup-btn.maps {
+          background-color: #1e3a8a; /* azul escuro */
+          color: #e0f2fe;
+      }
+      .popup-btn.maps:hover {
+          background-color: #1e40af;
+      }
+
+      .popup-btn.favorite {
+          background-color: #374151; /* cinza */
+          color: #d1d5db;
+      }
+      .popup-btn.favorite:hover {
+          background-color: #4b5563;
+      }
     </style>
   </head>
   <body>
@@ -1385,11 +1460,41 @@
         placesFiltrados.forEach((place) => {
           const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
           const tipoTraduzido = traducoes[place.type] || place.type.replace(/_/g, ' ');
-          marker.bindPopup(`<b>${place.name}</b><br/>Tipo: ${tipoTraduzido}<br/><button onclick="combinarRole(${place.id})">Combinar rolê</button>`);
+
+          // Sanitiza o nome do lugar para usar em atributos HTML
+          const safeName = place.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+          const popupContent = `
+              <div class="popup-header">${place.name}</div>
+              <div class="popup-type">${tipoTraduzido}</div>
+              <div class="popup-actions">
+                  <button class="popup-btn maps" onclick="abrirGoogleMaps('${safeName}', ${place.lat}, ${place.lon})">🗺️ Maps</button>
+                  <button class="popup-btn favorite" onclick="favoritarLugar(${place.id})">⭐ Salvar</button>
+              </div>
+          `;
+
+          marker.bindPopup(popupContent, {
+              className: 'custom-popup'
+          });
         });
       }
 
       // --------- Funções Auxiliares ---------
+      function abrirGoogleMaps(nome, lat, lon) {
+          let query;
+          if (nome && nome.trim() !== '(sem nome)') {
+              query = encodeURIComponent(`${nome} @${lat},${lon}`);
+          } else {
+              query = encodeURIComponent(`${lat},${lon}`);
+          }
+          const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+          window.open(url, '_blank');
+      }
+
+      function favoritarLugar(placeId) {
+          alert(`Funcionalidade "Favoritar" para o lugar ID ${placeId} será implementada em breve!`);
+      }
+
       function atualizarCoordsLabel(texto) { coordsDiv.textContent = texto; }
       function combinarRole(placeId) { alert("Combinar rolê no lugar ID " + placeId + " (futuro: abrir fluxo de grupo/votação)"); }
 
