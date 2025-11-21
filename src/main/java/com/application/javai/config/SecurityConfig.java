@@ -68,6 +68,9 @@ public class SecurityConfig {
 
             .logout(logout -> logout
                 .logoutUrl("/api/auth/logout")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
                 .logoutSuccessHandler((request, response, authentication) ->
                     response.setStatus(HttpServletResponse.SC_OK)
                 )
