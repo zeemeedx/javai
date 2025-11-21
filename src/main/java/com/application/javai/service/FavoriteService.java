@@ -28,23 +28,29 @@ public class FavoriteService {
     }
 
     @Transactional
-    public void favoritarLugar(FavoritePlaceDTO dto) {
+    public FavoritePlaceDTO favoritarLugar(FavoritePlaceDTO dto) {
         User user = getAuthenticatedUser();
 
-        if (favoritePlaceRepository.existsByUserAndExternalId(user, dto.externalId())) {
-            return;
+        String normalizedName = normalizeName(dto.name());
+
+        FavoritePlace favorite = favoritePlaceRepository
+                .findByUserAndNameAndCoordinates(user, normalizedName, dto.lat(), dto.lon())
+                .orElse(null);
+
+        if (favorite != null) {
+            return toDto(favorite);
         }
 
-        FavoritePlace favorite = new FavoritePlace();
+        favorite = new FavoritePlace();
         favorite.setUser(user);
         favorite.setExternalId(dto.externalId());
-        favorite.setName(dto.name());
+        favorite.setName(normalizedName);
         favorite.setType(dto.type());
         favorite.setLat(dto.lat());
         favorite.setLon(dto.lon());
         favorite.setSource(dto.source());
 
-        favoritePlaceRepository.save(favorite);
+        return toDto(favoritePlaceRepository.save(favorite));
     }
 
     @Transactional(readOnly = true)
@@ -96,5 +102,12 @@ public class FavoriteService {
 
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new NoSuchElementException("Usuário autenticado não encontrado."));
+    }
+
+    private String normalizeName(String rawName) {
+        if (rawName == null || rawName.trim().isEmpty()) {
+            return "(sem nome)";
+        }
+        return rawName.trim();
     }
 }

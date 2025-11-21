@@ -1,6 +1,7 @@
 package com.application.javai.controller;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -30,14 +31,20 @@ public class FavoriteController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> favoritar(@RequestBody FavoritePlaceDTO dto) {
-        favoriteService.favoritarLugar(dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<FavoritePlaceDTO> favoritar(@RequestBody FavoritePlaceDTO dto) {
+        FavoritePlaceDTO favorite = favoriteService.favoritarLugar(dto);
+        return ResponseEntity.ok(favorite);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> remover(@PathVariable Long id) {
-        favoriteService.removerFavorito(id);
-        return ResponseEntity.noContent().build();
+        try {
+            favoriteService.removerFavorito(id);
+            return ResponseEntity.noContent().build();
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.notFound().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(403).build();
+        }
     }
 }

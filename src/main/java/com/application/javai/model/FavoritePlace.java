@@ -13,7 +13,10 @@ import jakarta.persistence.UniqueConstraint;
 @Entity
 @Table(
     name = "favorite_places",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "external_id"})
+    uniqueConstraints = @UniqueConstraint(
+        name = "uk_favorite_place_user_coords",
+        columnNames = {"user_id", "name", "lat", "lon"}
+    )
 )
 public class FavoritePlace {
 
