@@ -263,6 +263,7 @@
         border: none;
         background: transparent;
         color: #9ca3af;
+      }
       /* Botão customizado para o Leaflet */
       .leaflet-control-custom {
         background-color: white;
@@ -451,6 +452,7 @@
         .account-card {
           padding: 16px 14px 12px;
         }
+      }
       /* Ícone de círculo azul para a localização real do usuário */
       .blue-circle-icon div {
         width: 16px;
@@ -789,7 +791,7 @@
           <input
             type="file"
             id="avatar-input"
-            accept="image/*"
+            accept="image/\*"
             style="display: none"
           />
 
@@ -1114,35 +1116,6 @@
         }
       });
 
-      // -------- Tabs da barra inferior --------
-
-      const tabs = document.querySelectorAll(".bottom-nav .tab");
-
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => {
-          tabs.forEach((t) => t.classList.remove("active"));
-          tab.classList.add("active");
-
-          const name = tab.dataset.tab;
-
-          if (name === "conta") {
-            abrirPainelConta();
-          } else {
-            fecharPainelConta();
-
-            if (name !== "explorar") {
-              alert(
-                'Aba "' +
-                  name +
-                  '" ainda não implementada. Aqui depois entra a tela de ' +
-                  name +
-                  "."
-              );
-            }
-          }
-        });
-      });
-
       // ---- Edição de nome ----
       editNameBtn.addEventListener("click", () => {
         const currentName = accountNameEl.textContent.trim();
@@ -1222,7 +1195,6 @@
       L.control.zoom({ position: "topright" }).addTo(map);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
       const markersLayer = L.layerGroup().addTo(map);
-      const coordsDiv = document.getElementById("coords");
 
       function atualizarCoordsLabel(lat, lon, origem) {
         coordsDiv.textContent = `Localização (${origem}): ${lat.toFixed(
@@ -1578,7 +1550,9 @@
       // inicializa lista (sem abrir overlay ainda)
       renderContactList();
 
-      // --------- Tabs (3: conta, explorar, chat) ---------
+      // ---------       </div>
+    //</div>      </div>
+    //</div> (3: conta, explorar, chat) ---------
       const tabs = document.querySelectorAll(".bottom-nav .tab");
       tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
