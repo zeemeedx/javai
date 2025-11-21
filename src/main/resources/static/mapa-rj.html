@@ -31,7 +31,8 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
         background: #020617;
         color: var(--main-text);
       }
@@ -47,8 +48,13 @@
         z-index: 1001; /* Acima dos paineis */
       }
 
-      .app-header .title { font-weight: 600; }
-      .app-header .user { font-size: 0.8rem; color: #9ca3af; }
+      .app-header .title {
+        font-weight: 600;
+      }
+      .app-header .user {
+        font-size: 0.8rem;
+        color: #9ca3af;
+      }
 
       #map {
         flex: 1;
@@ -68,7 +74,6 @@
         max-width: 300px;
       }
 
-
       /* Painel de Controles (Raio e Categorias) */
       #controls-panel {
         position: absolute;
@@ -80,7 +85,7 @@
         z-index: 1000;
         max-width: 200px;
       }
-      
+
       #radius-control {
         font-size: 0.8rem;
         margin-bottom: 8px;
@@ -169,9 +174,17 @@
       }
 
       @media (max-width: 480px) {
-        .app-header { font-size: 0.8rem; }
-        #coords { font-size: 0.7rem; bottom: 60px; }
-        #category-filter { font-size: 0.75rem; padding: 6px 8px; }
+        .app-header {
+          font-size: 0.8rem;
+        }
+        #coords {
+          font-size: 0.7rem;
+          bottom: 60px;
+        }
+        #category-filter {
+          font-size: 0.75rem;
+          padding: 6px 8px;
+        }
       }
 
       /* -------- Overlay + Card da Conta -------- */
@@ -481,6 +494,140 @@
           padding: 16px 14px 12px;
         }
       }
+
+      /* --- Amigos na aba Conta --- */
+
+      #account-friends {
+        margin-top: 16px;
+        border-top: 1px solid rgba(148, 163, 184, 0.25);
+        padding-top: 12px;
+      }
+
+      #account-friends h4 {
+        margin: 0;
+        font-size: 0.9rem;
+      }
+
+      .friends-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+
+      .friends-header button {
+        padding: 4px 10px;
+        font-size: 0.75rem;
+        border-radius: 999px;
+        border: 1px solid #3b82f6;
+        background: rgba(59, 130, 246, 0.12);
+        color: #e5e7eb;
+        cursor: pointer;
+      }
+
+      .friends-header button:hover {
+        background: rgba(59, 130, 246, 0.22);
+      }
+
+      /* painel de busca de amigos */
+      .friends-search {
+        margin-top: 8px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(31, 41, 55, 0.7);
+      }
+
+      .friends-search.hidden {
+        display: none;
+      }
+
+      .friends-search-bar {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .friends-search-bar input {
+        flex: 1;
+        padding: 6px 8px;
+        border-radius: 999px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.8rem;
+      }
+
+      .friends-search-bar input::placeholder {
+        color: #6b7280;
+      }
+
+      .friends-search-bar button {
+        padding: 0 12px;
+        border-radius: 999px;
+        border: none;
+        background: #3b82f6;
+        color: #e5e7eb;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+
+      /* linhas de amigo / resultado de busca */
+      .friend-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(31, 41, 55, 0.7);
+        font-size: 0.8rem;
+      }
+
+      .friend-left {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .friend-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #e5e7eb;
+      }
+
+      .friend-name {
+        font-weight: 600;
+      }
+
+      .friend-email {
+        color: #9ca3af;
+        font-size: 0.72rem;
+      }
+
+      .friend-right button {
+        font-size: 0.75rem;
+        border-radius: 999px;
+        padding: 3px 10px;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* estilos dos botões de status */
+      .friend-btn-primary {
+        background: #3b82f6;
+        color: #e5e7eb;
+      }
+
+      .friend-btn-disabled {
+        background: #1f2937;
+        color: #9ca3af;
+        cursor: default;
+      }
+
       /* Ícone de círculo azul para a localização real do usuário */
       .blue-circle-icon div {
         width: 16px;
@@ -779,77 +926,77 @@
 
       /* --- Custom Popup --- */
       .custom-popup .leaflet-popup-content-wrapper {
-          background: #0f172a; /* um azul bem escuro */
-          color: #e2e8f0;
-          border: 1px solid #334155;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        background: #0f172a; /* um azul bem escuro */
+        color: #e2e8f0;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
       }
 
       .custom-popup .leaflet-popup-content {
-          margin: 10px 14px;
-          font-size: 0.85rem;
-          line-height: 1.5;
-          width: 200px !important; /* Definir uma largura fixa para o popup */
+        margin: 10px 14px;
+        font-size: 0.85rem;
+        line-height: 1.5;
+        width: 200px !important; /* Definir uma largura fixa para o popup */
       }
 
       .custom-popup .leaflet-popup-tip {
-          background: #0f172a;
+        background: #0f172a;
       }
 
       .custom-popup .popup-header {
-          font-size: 1rem;
-          font-weight: 700;
-          color: #f1f5f9;
-          margin-bottom: 4px;
-          max-width: 220px; /* Evita que nomes longos quebrem o layout */
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #f1f5f9;
+        margin-bottom: 4px;
+        max-width: 220px; /* Evita que nomes longos quebrem o layout */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .custom-popup .popup-type {
-          font-style: italic;
-          color: #94a3b8;
-          margin-bottom: 10px;
+        font-style: italic;
+        color: #94a3b8;
+        margin-bottom: 10px;
       }
 
       .custom-popup .popup-btn {
-          flex: 1;
-          padding: 6px 8px;
-          font-size: 0.75rem;
-          font-weight: 600;
-          text-align: center;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: background-color 0.2s, color 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
+        flex: 1;
+        padding: 6px 8px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s, color 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
       }
 
       .custom-popup .popup-actions {
-          display: flex;
-          gap: 8px;
-          margin-top: 12px; /* Adicionado um margin-top para separar do tipo */
+        display: flex;
+        gap: 8px;
+        margin-top: 12px; /* Adicionado um margin-top para separar do tipo */
       }
 
       .popup-btn.maps {
-          background-color: #1e3a8a; /* azul escuro */
-          color: #e0f2fe;
+        background-color: #1e3a8a; /* azul escuro */
+        color: #e0f2fe;
       }
       .popup-btn.maps:hover {
-          background-color: #1e40af;
+        background-color: #1e40af;
       }
 
       .popup-btn.favorite {
-          background-color: #374151; /* cinza */
-          color: #d1d5db;
+        background-color: #374151; /* cinza */
+        color: #d1d5db;
       }
       .popup-btn.favorite:hover {
-          background-color: #4b5563;
+        background-color: #4b5563;
       }
     </style>
   </head>
@@ -861,8 +1008,17 @@
 
     <div id="controls-panel">
       <div id="radius-control">
-        <label for="radius-slider">Raio: <span id="radius-value">1500m</span></label>
-        <input type="range" id="radius-slider" min="500" max="5000" step="100" value="1500">
+        <label for="radius-slider"
+          >Raio: <span id="radius-value">1500m</span></label
+        >
+        <input
+          type="range"
+          id="radius-slider"
+          min="500"
+          max="5000"
+          step="100"
+          value="1500"
+        />
       </div>
       <div id="category-filter"></div>
     </div>
@@ -896,11 +1052,10 @@
             ?
           </div>
 
-          <!-- input de arquivo escondido -->
           <input
             type="file"
             id="avatar-input"
-            accept="image/\*"
+            accept="image/*"
             style="display: none"
           />
 
@@ -917,7 +1072,6 @@
               </button>
             </div>
 
-            <!-- modo edição do nome -->
             <div class="name-edit hidden" id="name-edit-container">
               <input
                 type="text"
@@ -938,6 +1092,7 @@
         </div>
 
         <div class="account-sections">
+          <!-- Histórico de rolês (mantido) -->
           <div class="account-section">
             <h4>Histórico de rolês</h4>
             <ul class="list-compact" id="roles-list">
@@ -945,16 +1100,39 @@
             </ul>
           </div>
 
-          <div class="account-section">
-            <h4>Lista de amigos</h4>
-            <ul class="list-compact" id="friends-list">
+          <!-- 🔹 NOVA seção de amigos -->
+          <div class="account-section" id="account-friends">
+            <div class="friends-header">
+              <h4>Lista de amigos</h4>
+              <button id="btn-open-add-friend" type="button">
+                Adicionar amigos
+              </button>
+            </div>
+
+            <!-- Lista de amigos atuais -->
+            <div id="friends-list">
               <!-- preenchido via JS -->
-            </ul>
+            </div>
+
+            <!-- Painel de busca de amigos (inicialmente escondido) -->
+            <div id="add-friend-panel" class="friends-search hidden">
+              <div class="friends-search-bar">
+                <input
+                  type="text"
+                  id="friend-search-input"
+                  placeholder="Buscar por nome ou e-mail..."
+                />
+                <button id="friend-search-btn" type="button">Buscar</button>
+              </div>
+              <div id="friend-search-results">
+                <!-- resultados da busca via JS -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    
+
     <!-- Overlay do CHAT -->
     <div id="chat-overlay" class="overlay-chat">
       <div class="chat-app-container" id="chat-app-container">
@@ -1043,7 +1221,6 @@
       const accountAvatarEl = document.getElementById("account-avatar");
       const avatarInputEl = document.getElementById("avatar-input");
       const rolesListEl = document.getElementById("roles-list");
-      const friendsListEl = document.getElementById("friends-list");
       const editNameBtn = document.getElementById("edit-name-btn");
       const nameEditContainer = document.getElementById("name-edit-container");
       const nameEditInput = document.getElementById("name-edit-input");
@@ -1148,24 +1325,6 @@
         });
       }
 
-      function renderMockFriends() {
-        friendsListEl.innerHTML = "";
-        mockFriends.forEach((f) => {
-          const li = document.createElement("li");
-          const left = document.createElement("span");
-          left.className = "label";
-          left.textContent = f.nome;
-
-          const right = document.createElement("span");
-          right.className = "pill pill-secondary";
-          right.textContent = f.tag;
-
-          li.appendChild(left);
-          li.appendChild(right);
-          friendsListEl.appendChild(li);
-        });
-      }
-
       async function abrirPainelConta() {
         accountPanel.style.display = "flex";
 
@@ -1207,7 +1366,7 @@
         }
 
         renderMockRoles();
-        renderMockFriends();
+        loadFriendsOverview();
       }
 
       function fecharPainelConta() {
@@ -1277,8 +1436,8 @@
       // --------- Elementos da UI ---------
       const coordsDiv = document.getElementById("coords");
       const categoryFilterDiv = document.getElementById("category-filter");
-      const radiusSlider = document.getElementById('radius-slider');
-      const radiusValue = document.getElementById('radius-value');
+      const radiusSlider = document.getElementById("radius-slider");
+      const radiusValue = document.getElementById("radius-value");
 
       // --------- Estado da Aplicação ---------
       let userActualLocation = null;
@@ -1288,23 +1447,38 @@
       const defaultLon = -43.1729;
       let currentRadius = 1500; // Raio de busca em metros, agora dinâmico
       const defaultCheckedCategories = new Set([
-        'place_of_worship', 'restaurant', 'fast_food', 'cafe', 'bar',
-        'ice_cream', 'pub', 'cinema', 'theatre', 'nightclub', 'university'
+        "place_of_worship",
+        "restaurant",
+        "fast_food",
+        "cafe",
+        "bar",
+        "ice_cream",
+        "pub",
+        "cinema",
+        "theatre",
+        "nightclub",
+        "university",
       ]);
 
       // Estilo para o círculo de raio
       const radiusCircleOptions = {
-        color: '#000000',
+        color: "#000000",
         weight: 2,
         opacity: 1,
         fill: false,
-        dashArray: '5, 10'
+        dashArray: "5, 10",
       };
 
       // --------- Inicialização do Mapa (Leaflet) ---------
-      const map = L.map("map", { zoomControl: false }).setView([defaultLat, defaultLon], 12);
+      const map = L.map("map", { zoomControl: false }).setView(
+        [defaultLat, defaultLon],
+        12
+      );
       L.control.zoom({ position: "topright" }).addTo(map);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors",
+      }).addTo(map);
       const markersLayer = L.layerGroup().addTo(map);
 
       function atualizarCoordsLabel(lat, lon, origem) {
@@ -1338,15 +1512,22 @@
 
       // --------- Controle Customizado "Home" ---------
       const HomeButton = L.Control.extend({
-        options: { position: 'topright' },
+        options: { position: "topright" },
         onAdd: function (map) {
-          const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
-          btn.innerHTML = '🏠';
-          L.DomEvent.on(btn, 'click', (e) => {
+          const btn = L.DomUtil.create(
+            "div",
+            "leaflet-bar leaflet-control leaflet-control-custom"
+          );
+          btn.innerHTML = "🏠";
+          L.DomEvent.on(btn, "click", (e) => {
             L.DomEvent.stop(e);
             if (userActualLocation) {
               map.setView([userActualLocation.lat, userActualLocation.lng], 14);
-              setSearchMarker(userActualLocation.lat, userActualLocation.lng, "Buscando a partir da sua localização");
+              setSearchMarker(
+                userActualLocation.lat,
+                userActualLocation.lng,
+                "Buscando a partir da sua localização"
+              );
             } else {
               alert(
                 "Ainda não foi possível obter sua localização inicial. Tente recarregar a página."
@@ -1364,34 +1545,39 @@
         setSearchMarker(lat, lng, "Buscando a partir daqui");
       });
 
-      radiusSlider.addEventListener('input', () => {
+      radiusSlider.addEventListener("input", () => {
         currentRadius = parseInt(radiusSlider.value, 10);
         radiusValue.textContent = `${currentRadius}m`;
-        
+
         if (searchRadiusCircle) {
           searchRadiusCircle.setRadius(currentRadius);
         }
       });
 
-      radiusSlider.addEventListener('change', () => {
+      radiusSlider.addEventListener("change", () => {
         // A busca é chamada apenas quando o usuário solta o slider, para evitar muitas requisições
         carregarPlaces();
       });
 
-      categoryFilterDiv.addEventListener('change', () => {
+      categoryFilterDiv.addEventListener("change", () => {
         aplicarFiltroEAtualizarMapa();
       });
 
       // --------- Funções Principais da Lógica de Filtragem ---------
       function setSearchMarker(lat, lon, label) {
         currentSearchCoords = { lat, lon };
-        atualizarCoordsLabel(`Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
-        
+        atualizarCoordsLabel(
+          `Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`
+        );
+
         if (searchMarker) {
           searchMarker.setLatLng([lat, lon]);
           searchMarker.setPopupContent(label);
         } else {
-          searchMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup(label).openPopup();
+          searchMarker = L.marker([lat, lon], { icon: userIcon })
+            .addTo(map)
+            .bindPopup(label)
+            .openPopup();
         }
 
         // Desenha ou move o círculo de raio
@@ -1399,7 +1585,10 @@
           searchRadiusCircle.setLatLng([lat, lon]);
           searchRadiusCircle.setRadius(currentRadius);
         } else {
-          searchRadiusCircle = L.circle([lat, lon], { ...radiusCircleOptions, radius: currentRadius }).addTo(map);
+          searchRadiusCircle = L.circle([lat, lon], {
+            ...radiusCircleOptions,
+            radius: currentRadius,
+          }).addTo(map);
         }
 
         carregarPlaces();
@@ -1407,14 +1596,16 @@
 
       async function carregarPlaces() {
         if (!currentSearchCoords) return;
-        categoryFilterDiv.innerHTML = '<span class="loader">Buscando locais...</span>';
-          markersLayer.clearLayers();
+        categoryFilterDiv.innerHTML =
+          '<span class="loader">Buscando locais...</span>';
+        markersLayer.clearLayers();
         const { lat, lon } = currentSearchCoords;
         try {
           const url = `/api/places?lat=${lat}&lon=${lon}&radius=${currentRadius}`;
           const response = await fetch(url);
           if (!response.ok) {
-            categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
+            categoryFilterDiv.innerHTML =
+              '<span class="loader">Erro na busca.</span>';
             if (response.status === 401 || response.status === 403) {
               alert("Sessão expirada. Por favor, faça login novamente.");
               window.location.href = "/";
@@ -1426,23 +1617,25 @@
           aplicarFiltroEAtualizarMapa();
         } catch (error) {
           console.error("Erro ao carregar places:", error);
-          categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
+          categoryFilterDiv.innerHTML =
+            '<span class="loader">Erro na busca.</span>';
         }
       }
 
       function atualizarFiltroCategorias(places) {
         if (places.length === 0) {
-          categoryFilterDiv.innerHTML = '<span class="loader">Nenhum local encontrado.</span>';
+          categoryFilterDiv.innerHTML =
+            '<span class="loader">Nenhum local encontrado.</span>';
           return;
         }
-        const categories = [...new Set(places.map(p => p.type))].sort();
-        categoryFilterDiv.innerHTML = '<h4>Categorias</h4>';
-        categories.forEach(cat => {
+        const categories = [...new Set(places.map((p) => p.type))].sort();
+        categoryFilterDiv.innerHTML = "<h4>Categorias</h4>";
+        categories.forEach((cat) => {
           const id = `cat-${cat}`;
-          const item = document.createElement('div');
-          item.className = 'category-item';
-          const labelTraduzida = traducoes[cat] || cat.replace(/_/g, ' ');
-          const isChecked = defaultCheckedCategories.has(cat) ? 'checked' : '';
+          const item = document.createElement("div");
+          item.className = "category-item";
+          const labelTraduzida = traducoes[cat] || cat.replace(/_/g, " ");
+          const isChecked = defaultCheckedCategories.has(cat) ? "checked" : "";
           item.innerHTML = `
             <input type="checkbox" id="${id}" value="${cat}" ${isChecked}>
             <label for="${id}">${labelTraduzida}</label>
@@ -1453,16 +1646,23 @@
 
       function aplicarFiltroEAtualizarMapa() {
         const selectedCategories = new Set(
-          Array.from(categoryFilterDiv.querySelectorAll('input:checked')).map(input => input.value)
+          Array.from(categoryFilterDiv.querySelectorAll("input:checked")).map(
+            (input) => input.value
+          )
         );
-        const placesFiltrados = allFoundPlaces.filter(place => selectedCategories.has(place.type));
+        const placesFiltrados = allFoundPlaces.filter((place) =>
+          selectedCategories.has(place.type)
+        );
         markersLayer.clearLayers();
         placesFiltrados.forEach((place) => {
           const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
-          const tipoTraduzido = traducoes[place.type] || place.type.replace(/_/g, ' ');
+          const tipoTraduzido =
+            traducoes[place.type] || place.type.replace(/_/g, " ");
 
           // Sanitiza o nome do lugar para usar em atributos HTML
-          const safeName = place.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          const safeName = place.name
+            .replace(/'/g, "\\'")
+            .replace(/"/g, "&quot;");
 
           const popupContent = `
               <div class="popup-header">${place.name}</div>
@@ -1474,29 +1674,39 @@
           `;
 
           marker.bindPopup(popupContent, {
-              className: 'custom-popup'
+            className: "custom-popup",
           });
         });
       }
 
       // --------- Funções Auxiliares ---------
       function abrirGoogleMaps(nome, lat, lon) {
-          let query;
-          if (nome && nome.trim() !== '(sem nome)') {
-              query = encodeURIComponent(`${nome} @${lat},${lon}`);
-          } else {
-              query = encodeURIComponent(`${lat},${lon}`);
-          }
-          const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
-          window.open(url, '_blank');
+        let query;
+        if (nome && nome.trim() !== "(sem nome)") {
+          query = encodeURIComponent(`${nome} @${lat},${lon}`);
+        } else {
+          query = encodeURIComponent(`${lat},${lon}`);
+        }
+        const url = `https://www.google.com/maps/search/?api=1&query=${query}`;
+        window.open(url, "_blank");
       }
 
       function favoritarLugar(placeId) {
-          alert(`Funcionalidade "Favoritar" para o lugar ID ${placeId} será implementada em breve!`);
+        alert(
+          `Funcionalidade "Favoritar" para o lugar ID ${placeId} será implementada em breve!`
+        );
       }
 
-      function atualizarCoordsLabel(texto) { coordsDiv.textContent = texto; }
-      function combinarRole(placeId) { alert("Combinar rolê no lugar ID " + placeId + " (futuro: abrir fluxo de grupo/votação)"); }
+      function atualizarCoordsLabel(texto) {
+        coordsDiv.textContent = texto;
+      }
+      function combinarRole(placeId) {
+        alert(
+          "Combinar rolê no lugar ID " +
+            placeId +
+            " (futuro: abrir fluxo de grupo/votação)"
+        );
+      }
 
       function carregarPosicaoPadrao(motivo) {
         console.warn(motivo);
@@ -1506,7 +1716,8 @@
 
       // --------- Função Principal de Inicialização ---------
       async function inicializarMapa() {
-        categoryFilterDiv.innerHTML = '<span class="loader">Mova o pino para buscar...</span>';
+        categoryFilterDiv.innerHTML =
+          '<span class="loader">Mova o pino para buscar...</span>';
         if (!navigator.geolocation) {
           carregarPosicaoPadrao("Geolocalização não suportada no navegador.");
           return;
@@ -1518,8 +1729,15 @@
             userActualLocation = { lat: userLat, lng: userLon };
             map.setView([userLat, userLon], 14);
             if (locationMarker) locationMarker.remove();
-            locationMarker = L.marker([userLat, userLon], { icon: blueCircleIcon, zIndexOffset: -100 }).addTo(map);
-            setSearchMarker(userLat, userLon, "Buscando a partir da sua localização");
+            locationMarker = L.marker([userLat, userLon], {
+              icon: blueCircleIcon,
+              zIndexOffset: -100,
+            }).addTo(map);
+            setSearchMarker(
+              userLat,
+              userLon,
+              "Buscando a partir da sua localização"
+            );
           },
           (err) => {
             atualizarCoordsLabel("Não foi possível obter sua localização.");
@@ -1707,8 +1925,8 @@
       renderContactList();
 
       // ---------       </div>
-    //</div>      </div>
-    //</div> (3: conta, explorar, chat) ---------
+      //</div>      </div>
+      //</div> (3: conta, explorar, chat) ---------
       const tabs = document.querySelectorAll(".bottom-nav .tab");
       tabs.forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -1741,6 +1959,262 @@
           }
         });
       });
+
+      // ============ Amigos – elementos da UI ============
+
+      const friendsListEl = document.getElementById("friends-list");
+      const addFriendPanelEl = document.getElementById("add-friend-panel");
+      const btnOpenAddFriend = document.getElementById("btn-open-add-friend");
+      const friendSearchInputEl = document.getElementById(
+        "friend-search-input"
+      );
+      const friendSearchBtnEl = document.getElementById("friend-search-btn");
+      const friendSearchResultsEl = document.getElementById(
+        "friend-search-results"
+      );
+
+      // Proteção: se for outra página sem account-panel, não faz nada
+      function hasFriendsUI() {
+        return (
+          friendsListEl &&
+          addFriendPanelEl &&
+          btnOpenAddFriend &&
+          friendSearchInputEl &&
+          friendSearchBtnEl &&
+          friendSearchResultsEl
+        );
+      }
+
+      // ============ Abrir/fechar painel "Adicionar amigos" ============
+
+      if (hasFriendsUI()) {
+        btnOpenAddFriend.addEventListener("click", () => {
+          const isHidden = addFriendPanelEl.classList.contains("hidden");
+          if (isHidden) {
+            addFriendPanelEl.classList.remove("hidden");
+            friendSearchInputEl.focus();
+          } else {
+            addFriendPanelEl.classList.add("hidden");
+          }
+        });
+
+        friendSearchBtnEl.addEventListener("click", () => {
+          const q = friendSearchInputEl.value.trim();
+          if (!q) return;
+          searchFriends(q);
+        });
+
+        friendSearchInputEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            friendSearchBtnEl.click();
+          }
+        });
+      }
+
+      // ============ Carregar overview de amigos ============
+
+      async function loadFriendsOverview() {
+        if (!hasFriendsUI()) return;
+
+        try {
+          const resp = await fetch("/api/friends");
+          if (!resp.ok) {
+            console.error("Erro ao carregar amigos:", resp.status);
+            if (resp.status === 401 || resp.status === 403) {
+              alert("Sessão expirada. Faça login novamente.");
+              window.location.href = "/";
+            }
+            return;
+          }
+
+          const data = await resp.json();
+          // data.friends é uma lista de UserSummaryDTO
+          renderFriendsList(data.friends || []);
+        } catch (err) {
+          console.error("Erro ao carregar overview de amigos:", err);
+        }
+      }
+
+      function renderFriendsList(friends) {
+        if (!friendsListEl) return;
+
+        if (!friends.length) {
+          friendsListEl.innerHTML =
+            '<p style="font-size:0.75rem;color:#9ca3af;">Você ainda não tem amigos adicionados.</p>';
+          return;
+        }
+
+        friendsListEl.innerHTML = "";
+        friends.forEach((f) => {
+          const row = document.createElement("div");
+          row.className = "friend-row";
+
+          const left = document.createElement("div");
+          left.className = "friend-left";
+
+          const avatar = document.createElement("div");
+          avatar.className = "friend-avatar";
+          avatar.textContent = (f.nome || "?").charAt(0).toUpperCase();
+
+          const info = document.createElement("div");
+          const nameEl = document.createElement("div");
+          nameEl.className = "friend-name";
+          nameEl.textContent = f.nome;
+
+          const emailEl = document.createElement("div");
+          emailEl.className = "friend-email";
+          emailEl.textContent = f.email;
+
+          info.appendChild(nameEl);
+          info.appendChild(emailEl);
+
+          left.appendChild(avatar);
+          left.appendChild(info);
+
+          const right = document.createElement("div");
+          right.className = "friend-right";
+          const btn = document.createElement("button");
+          btn.className = "friend-btn-disabled";
+          btn.textContent = "Amigo";
+
+          right.appendChild(btn);
+
+          row.appendChild(left);
+          row.appendChild(right);
+
+          friendsListEl.appendChild(row);
+        });
+      }
+
+      // ============ Busca de usuários para adicionar ============
+
+      async function searchFriends(query) {
+        if (!hasFriendsUI()) return;
+
+        try {
+          const resp = await fetch(
+            "/api/friends/search?query=" + encodeURIComponent(query)
+          );
+          if (!resp.ok) {
+            console.error("Erro ao buscar usuários:", resp.status);
+            if (resp.status === 401 || resp.status === 403) {
+              alert("Sessão expirada. Faça login novamente.");
+              window.location.href = "/";
+            }
+            return;
+          }
+
+          const results = await resp.json();
+          renderFriendSearchResults(results);
+        } catch (err) {
+          console.error("Erro na busca de amigos:", err);
+        }
+      }
+
+      function renderFriendSearchResults(users) {
+        if (!friendSearchResultsEl) return;
+
+        friendSearchResultsEl.innerHTML = "";
+
+        if (!users.length) {
+          friendSearchResultsEl.innerHTML =
+            '<p style="font-size:0.75rem;color:#9ca3af;">Nenhum usuário encontrado.</p>';
+          return;
+        }
+
+        users.forEach((u) => {
+          const row = document.createElement("div");
+          row.className = "friend-row";
+
+          const left = document.createElement("div");
+          left.className = "friend-left";
+
+          const avatar = document.createElement("div");
+          avatar.className = "friend-avatar";
+          avatar.textContent = (u.nome || "?").charAt(0).toUpperCase();
+
+          const info = document.createElement("div");
+          const nameEl = document.createElement("div");
+          nameEl.className = "friend-name";
+          nameEl.textContent = u.nome;
+
+          const emailEl = document.createElement("div");
+          emailEl.className = "friend-email";
+          emailEl.textContent = u.email;
+
+          info.appendChild(nameEl);
+          info.appendChild(emailEl);
+
+          left.appendChild(avatar);
+          left.appendChild(info);
+
+          const right = document.createElement("div");
+          right.className = "friend-right";
+          const btn = document.createElement("button");
+
+          const status = u.status; // NONE, FRIEND, PENDING_SENT, PENDING_RECEIVED, REJECTED
+
+          if (status === "NONE" || status === "REJECTED") {
+            btn.className = "friend-btn-primary";
+            btn.textContent =
+              status === "REJECTED" ? "Enviar novamente" : "Enviar pedido";
+            btn.addEventListener("click", () => sendFriendRequest(u.id));
+          } else if (status === "FRIEND") {
+            btn.className = "friend-btn-disabled";
+            btn.textContent = "Amigo";
+            btn.disabled = true;
+          } else if (status === "PENDING_SENT") {
+            btn.className = "friend-btn-disabled";
+            btn.textContent = "Pendente";
+            btn.disabled = true;
+          } else if (status === "PENDING_RECEIVED") {
+            btn.className = "friend-btn-disabled";
+            btn.textContent = "Pedido recebido";
+            btn.disabled = true;
+          } else {
+            // fallback
+            btn.className = "friend-btn-disabled";
+            btn.textContent = "Indefinido";
+            btn.disabled = true;
+          }
+
+          right.appendChild(btn);
+          row.appendChild(left);
+          row.appendChild(right);
+
+          friendSearchResultsEl.appendChild(row);
+        });
+      }
+
+      // ============ Enviar pedido de amizade ============
+
+      async function sendFriendRequest(userId) {
+        try {
+          const resp = await fetch("/api/friends/requests", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ targetUserId: userId }),
+          });
+
+          if (!resp.ok) {
+            const text = await resp.text();
+            alert("Erro ao enviar pedido: " + text);
+            return;
+          }
+
+          // Atualiza lista de amigos e resultados da busca
+          const q = friendSearchInputEl?.value?.trim();
+          if (q) {
+            searchFriends(q);
+          }
+          loadFriendsOverview();
+        } catch (err) {
+          console.error("Erro ao enviar pedido de amizade:", err);
+        }
+      }
     </script>
   </body>
 </html>
