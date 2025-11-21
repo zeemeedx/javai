@@ -13,6 +13,14 @@
     />
 
     <style>
+      :root {
+        --panel-bg: rgba(15, 23, 42, 0.85);
+        --main-text: #e5e7eb;
+        --border-color: #111827;
+        --blue: #3b82f6;
+        --dark-blue: #1d4ed8;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -23,89 +31,99 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: #020617;
-        color: #e5e7eb;
+        color: var(--main-text);
       }
 
       .app-header {
         padding: 8px 12px;
         background: #020617;
-        border-bottom: 1px solid #111827;
+        border-bottom: 1px solid var(--border-color);
         font-size: 0.9rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        z-index: 1000;
+        z-index: 1001; /* Acima dos paineis */
       }
 
-      .app-header .title {
-        font-weight: 600;
-      }
-
-      .app-header .user {
-        font-size: 0.8rem;
-        color: #9ca3af;
-      }
-
-      #coords {
-        position: absolute;
-        top: 44px;
-        left: 8px;
-        background: rgba(15, 23, 42, 0.85);
-        color: #e5e7eb;
-        padding: 6px 8px;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        z-index: 1000;
-      }
+      .app-header .title { font-weight: 600; }
+      .app-header .user { font-size: 0.8rem; color: #9ca3af; }
 
       #map {
         flex: 1;
         width: 100vw;
       }
 
+      /* Painel de Coordenadas (movido para baixo) */
+      #coords {
+        position: absolute;
+        bottom: 64px; /* Acima da barra de navegação */
+        left: 8px;
+        background: var(--panel-bg);
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        z-index: 1000;
+        max-width: 300px;
+      }
+
+      /* Painel de Filtro de Categorias */
+      #category-filter {
+        position: absolute;
+        top: 44px;
+        left: 8px;
+        background: var(--panel-bg);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        z-index: 1000;
+        max-height: 50vh;
+        max-width: 200px;
+        overflow-y: auto;
+      }
+      #category-filter h4 {
+        margin: 0 0 8px 0;
+        font-size: 0.85rem;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 4px;
+      }
+      .category-item {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .category-item label {
+        cursor: pointer;
+        user-select: none;
+        margin-left: 4px;
+      }
+      .category-item input {
+        cursor: pointer;
+      }
+
+      /* Loader para categorias */
+      .loader {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
       .bottom-nav {
         height: 56px;
         background: #020617;
-        border-top: 1px solid #111827;
+        border-top: 1px solid var(--border-color);
         display: flex;
         justify-content: space-around;
         align-items: center;
       }
-
-      .bottom-nav button {
-        flex: 1;
-        height: 100%;
-        border: none;
-        background: transparent;
-        color: #9ca3af;
-        font-size: 0.75rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 2px;
-        cursor: pointer;
-      }
-
-      .bottom-nav button span.icon {
-        font-size: 1.1rem;
-      }
-
-      .bottom-nav button.active {
-        color: #3b82f6;
-        border-top: 2px solid #3b82f6;
-      }
+      /* ... (regras da bottom-nav e media query mantidas) ... */
+      .bottom-nav button { flex: 1; height: 100%; border: none; background: transparent; color: #9ca3af; font-size: 0.75rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; cursor: pointer; }
+      .bottom-nav button span.icon { font-size: 1.1rem; }
+      .bottom-nav button.active { color: var(--blue); border-top: 2px solid var(--blue); }
 
       @media (max-width: 480px) {
-        .app-header {
-          font-size: 0.8rem;
-        }
-        #coords {
-          font-size: 0.7rem;
-        }
+        .app-header { font-size: 0.8rem; }
+        #coords { font-size: 0.7rem; bottom: 60px; }
+        #category-filter { font-size: 0.75rem; padding: 6px 8px; }
       }
 
       /* Botão customizado para o Leaflet */
@@ -126,8 +144,8 @@
       .blue-circle-icon div {
         width: 16px;
         height: 16px;
-        background-color: #3b82f6;
-        border: 2px solid #1d4ed8;
+        background-color: var(--blue);
+        border: 2px solid var(--dark-blue);
         border-radius: 50%;
         box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
       }
@@ -139,6 +157,7 @@
       <div class="user">Online</div>
     </header>
 
+    <div id="category-filter"></div>
     <div id="coords">Localização: carregando...</div>
 
     <div id="map"></div>
@@ -172,71 +191,58 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
+    <script src="js/traducoes.js" defer></script>
 
     <script>
       // --------- Elementos da UI ---------
       const coordsDiv = document.getElementById("coords");
+      const categoryFilterDiv = document.getElementById("category-filter");
 
       // --------- Estado da Aplicação ---------
-      let userActualLocation = null; // Localização REAL do usuário (do GPS)
+      let userActualLocation = null;
+      let currentSearchCoords = null;
+      let allFoundPlaces = [];
       const defaultLat = -22.9068;
       const defaultLon = -43.1729;
-      const defaultRadius = 1000;
+      const defaultRadius = 1500;
+      const defaultCheckedCategories = new Set([
+        'place_of_worship', 'restaurant', 'fast_food', 'cafe', 'bar',
+        'ice_cream', 'pub', 'cinema', 'theatre', 'nightclub', 'university'
+      ]);
+
+      // Estilo para o círculo de raio
+      const radiusCircleOptions = {
+        color: '#000000',
+        weight: 2,
+        opacity: 1,
+        fill: false,
+        dashArray: '5, 10'
+      };
 
       // --------- Inicialização do Mapa (Leaflet) ---------
-      const map = L.map("map", { zoomControl: false }).setView(
-        [defaultLat, defaultLon],
-        12
-      );
+      const map = L.map("map", { zoomControl: false }).setView([defaultLat, defaultLon], 12);
       L.control.zoom({ position: "topright" }).addTo(map);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
-
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
       const markersLayer = L.layerGroup().addTo(map);
 
       // --------- Ícones e Marcadores ---------
-      const userIcon = L.icon({
-        iconUrl:
-          "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
-        shadowUrl:
-          "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-        shadowSize: [41, 41],
-      });
-      
-      const blueCircleIcon = L.divIcon({
-        className: 'blue-circle-icon',
-        html: '<div></div>',
-        iconSize: [16, 16],
-        iconAnchor: [8, 8]
-      });
-
-      // 📌 Pino vermelho (marcador de busca), móvel
+      const userIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
+      const blueCircleIcon = L.divIcon({ className: 'blue-circle-icon', html: '<div></div>', iconSize: [16, 16], iconAnchor: [8, 8] });
       let searchMarker = null;
-      // 🔵 Círculo azul (localização real), agora como um marcador estático
       let locationMarker = null;
-
+      let searchRadiusCircle = null; // Círculo pontilhado do raio
 
       // --------- Controle Customizado "Home" ---------
       const HomeButton = L.Control.extend({
-        options: {
-          position: 'topright'
-        },
+        options: { position: 'topright' },
         onAdd: function (map) {
           const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
           btn.innerHTML = '🏠';
-          
-          L.DomEvent.on(btn, 'click', function (e) {
-            L.DomEvent.stop(e); // Impede que o clique chegue no mapa
-            
+          L.DomEvent.on(btn, 'click', (e) => {
+            L.DomEvent.stop(e);
             if (userActualLocation) {
-              map.setView(userActualLocation, 14);
+              map.setView([userActualLocation.lat, userActualLocation.lng], 14);
               setSearchMarker(userActualLocation.lat, userActualLocation.lng, "Buscando a partir da sua localização");
-              carregarPlaces(userActualLocation.lat, userActualLocation.lng);
             } else {
               alert("Ainda não foi possível obter sua localização inicial. Tente recarregar a página.");
             }
@@ -246,101 +252,125 @@
       });
       map.addControl(new HomeButton());
 
-
       // --------- Lógica de Eventos ---------
       map.on("click", function (e) {
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
-        console.log("Posição de busca ajustada manualmente:", lat, lon);
-        setSearchMarker(lat, lon, "Buscando a partir daqui");
-        carregarPlaces(lat, lon, defaultRadius);
+        const { lat, lng } = e.latlng;
+        setSearchMarker(lat, lng, "Buscando a partir daqui");
       });
 
-      // --------- Funções Auxiliares ---------
-      function atualizarCoordsLabel(texto) {
-        coordsDiv.textContent = texto;
-      }
-      
-      // Define a posição do PINO VERMELHO de busca
-      function setSearchMarker(lat, lon, label) {
-        console.log("Pino de busca movido para:", lat, lon, "→", label);
-        atualizarCoordsLabel(`Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+      categoryFilterDiv.addEventListener('change', () => {
+        aplicarFiltroEAtualizarMapa();
+      });
 
+      // --------- Funções Principais da Lógica de Filtragem ---------
+      function setSearchMarker(lat, lon, label) {
+        currentSearchCoords = { lat, lon };
+        atualizarCoordsLabel(`Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+        
         if (searchMarker) {
           searchMarker.setLatLng([lat, lon]);
           searchMarker.setPopupContent(label);
         } else {
-          searchMarker = L.marker([lat, lon], { icon: userIcon })
-            .addTo(map)
-            .bindPopup(label)
-            .openPopup();
+          searchMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup(label).openPopup();
         }
+
+        // Desenha ou move o círculo de raio
+        if (searchRadiusCircle) {
+          searchRadiusCircle.setLatLng([lat, lon]);
+        } else {
+          searchRadiusCircle = L.circle([lat, lon], { ...radiusCircleOptions, radius: defaultRadius }).addTo(map);
+        }
+
+        carregarPlaces();
       }
 
-      async function carregarPlaces(lat, lon, radius = defaultRadius) {
+      async function carregarPlaces() {
+        if (!currentSearchCoords) return;
+        categoryFilterDiv.innerHTML = '<span class="loader">Buscando locais...</span>';
+          markersLayer.clearLayers();
+        const { lat, lon } = currentSearchCoords;
         try {
-          const url = `/api/places?lat=${lat}&lon=${lon}&radius=${radius}`;
-          console.log("Chamando:", url);
+          const url = `/api/places?lat=${lat}&lon=${lon}&radius=${defaultRadius}`;
           const response = await fetch(url);
           if (!response.ok) {
-            console.error("Erro ao chamar /api/places:", response.status);
+            categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
             if (response.status === 401 || response.status === 403) {
               alert("Sessão expirada. Por favor, faça login novamente.");
               window.location.href = "/";
             }
             return;
           }
-          const places = await response.json();
-          markersLayer.clearLayers();
-          places.forEach((place) => {
-            const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
-            marker.bindPopup(
-              `<b>${place.name}</b><br/>Tipo: ${place.type}<br/><button onclick="combinarRole(${place.id})">Combinar rolê</button>`
-            );
-          });
+          allFoundPlaces = await response.json();
+          atualizarFiltroCategorias(allFoundPlaces);
+          aplicarFiltroEAtualizarMapa();
         } catch (error) {
           console.error("Erro ao carregar places:", error);
+          categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
         }
       }
 
-      function combinarRole(placeId) {
-        alert("Combinar rolê no lugar ID " + placeId + " (futuro: abrir fluxo de grupo/votação)");
+      function atualizarFiltroCategorias(places) {
+        if (places.length === 0) {
+          categoryFilterDiv.innerHTML = '<span class="loader">Nenhum local encontrado.</span>';
+          return;
+        }
+        const categories = [...new Set(places.map(p => p.type))].sort();
+        categoryFilterDiv.innerHTML = '<h4>Categorias</h4>';
+        categories.forEach(cat => {
+          const id = `cat-${cat}`;
+          const item = document.createElement('div');
+          item.className = 'category-item';
+          const labelTraduzida = traducoes[cat] || cat.replace(/_/g, ' ');
+          const isChecked = defaultCheckedCategories.has(cat) ? 'checked' : '';
+          item.innerHTML = `
+            <input type="checkbox" id="${id}" value="${cat}" ${isChecked}>
+            <label for="${id}">${labelTraduzida}</label>
+          `;
+          categoryFilterDiv.appendChild(item);
+        });
       }
+
+      function aplicarFiltroEAtualizarMapa() {
+        const selectedCategories = new Set(
+          Array.from(categoryFilterDiv.querySelectorAll('input:checked')).map(input => input.value)
+        );
+        const placesFiltrados = allFoundPlaces.filter(place => selectedCategories.has(place.type));
+        markersLayer.clearLayers();
+        placesFiltrados.forEach((place) => {
+          const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
+          const tipoTraduzido = traducoes[place.type] || place.type.replace(/_/g, ' ');
+          marker.bindPopup(`<b>${place.name}</b><br/>Tipo: ${tipoTraduzido}<br/><button onclick="combinarRole(${place.id})">Combinar rolê</button>`);
+        });
+      }
+
+      // --------- Funções Auxiliares ---------
+      function atualizarCoordsLabel(texto) { coordsDiv.textContent = texto; }
+      function combinarRole(placeId) { alert("Combinar rolê no lugar ID " + placeId + " (futuro: abrir fluxo de grupo/votação)"); }
 
       function carregarPosicaoPadrao(motivo) {
         console.warn(motivo);
         map.setView([defaultLat, defaultLon], 12);
         setSearchMarker(defaultLat, defaultLon, "Local padrão: Centro do Rio");
-        carregarPlaces(defaultLat, defaultLon, defaultRadius);
       }
 
       // --------- Função Principal de Inicialização ---------
       async function inicializarMapa() {
+        categoryFilterDiv.innerHTML = '<span class="loader">Mova o pino para buscar...</span>';
         if (!navigator.geolocation) {
           carregarPosicaoPadrao("Geolocalização não suportada no navegador.");
           return;
         }
-
         navigator.geolocation.getCurrentPosition(
-          (pos) => { // Sucesso ao obter localização
+          (pos) => {
             const userLat = pos.coords.latitude;
             const userLon = pos.coords.longitude;
             userActualLocation = { lat: userLat, lng: userLon };
-
             map.setView([userLat, userLon], 14);
-
-            // Adiciona o marcador azul estático da localização real
             if (locationMarker) locationMarker.remove();
-            locationMarker = L.marker([userLat, userLon], { 
-              icon: blueCircleIcon,
-              zIndexOffset: -100 // Garante que fique "atrás" do pino vermelho se sobreposto
-            }).addTo(map);
-
-            // Posiciona o pino de busca inicial na localização do usuário
+            locationMarker = L.marker([userLat, userLon], { icon: blueCircleIcon, zIndexOffset: -100 }).addTo(map);
             setSearchMarker(userLat, userLon, "Buscando a partir da sua localização");
-            carregarPlaces(userLat, userLon, defaultRadius);
           },
-          (err) => { // Erro ao obter localização
+          (err) => {
             atualizarCoordsLabel("Não foi possível obter sua localização.");
             carregarPosicaoPadrao(`Erro ao obter localização: ${err.message}`);
           },
