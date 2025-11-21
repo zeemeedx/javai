@@ -431,16 +431,16 @@
 
       .chip-action {
         cursor: pointer;
-        padding: 6px 14px;
+        padding: 6px 16px;
         font-size: 0.8rem;
         border: 1px solid rgba(248, 113, 113, 0.4);
         color: #fecaca;
-        background: rgba(127, 29, 29, 0.2);
+        background: rgba(127, 29, 29, 0.25);
         transition: background 0.2s ease;
       }
 
       .chip-action:hover {
-        background: rgba(153, 27, 27, 0.35);
+        background: rgba(153, 27, 27, 0.4);
       }
 
       .account-sections {
@@ -646,6 +646,60 @@
         background: #1f2937;
         color: #9ca3af;
         cursor: default;
+      }
+
+      .toast-container {
+        position: fixed;
+        right: 18px;
+        bottom: 90px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 2500;
+        pointer-events: none;
+      }
+
+      .toast-card {
+        min-width: 260px;
+        max-width: 320px;
+        background: rgba(2, 6, 23, 0.92);
+        border: 1px solid rgba(96, 165, 250, 0.4);
+        border-radius: 12px;
+        padding: 12px 14px;
+        color: #e5e7eb;
+        box-shadow: 0 16px 40px rgba(2, 6, 23, 0.8);
+        pointer-events: auto;
+      }
+
+      .toast-card p {
+        margin: 0 0 10px;
+        font-size: 0.85rem;
+        line-height: 1.2rem;
+      }
+
+      .toast-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .toast-actions button {
+        flex: 1;
+        padding: 6px 0;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+
+      .toast-actions button.accept {
+        background: #16a34a;
+        color: #ecfccb;
+      }
+
+      .toast-actions button.reject {
+        background: rgba(15, 23, 42, 0.8);
+        color: #fecaca;
+        border: 1px solid rgba(248, 113, 113, 0.4);
       }
 
       /* Ícone de círculo azul para a localização real do usuário */
@@ -1228,6 +1282,8 @@
       </button>
     </nav>
 
+    <div id="friend-request-toasts" class="toast-container"></div>
+
     <!-- JS do Leaflet -->
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -1253,6 +1309,10 @@
       const nameSaveBtn = document.getElementById("name-save-btn");
       const nameCancelBtn = document.getElementById("name-cancel-btn");
       const logoutButton = document.getElementById("logout-button");
+      const friendRequestToastsEl = document.getElementById(
+        "friend-request-toasts"
+      );
+      const displayedFriendRequestToastIds = new Set();
 
       let avatarCustomizado = false;
 
@@ -2265,6 +2325,87 @@
         } catch (err) {
           console.error("Erro ao enviar pedido de amizade:", err);
         }
+      }
+
+      async function respondFriendRequest(requestId, accept) {
+        const action = accept ? "accept" : "reject";
+        const resp = await fetch(`/api/friends/requests/${requestId}/${action}`, {
+          method: "POST",
+        });
+        if (!resp.ok) {
+          const text = await resp.text();
+          throw new Error(text || "Não foi possível responder ao pedido.");
+        }
+        await loadFriendsOverview();
+      }
+
+      function createFriendRequestToast(request) {
+        if (!friendRequestToastsEl) return;
+
+        const card = document.createElement("div");
+        card.className = "toast-card";
+        card.dataset.requestId = request.id;
+
+        const message = document.createElement("p");
+        message.textContent = `${request.requester.nome ?? "Um usuário"} te enviou um pedido de amizade.`;
+
+        const actions = document.createElement("div");
+        actions.className = "toast-actions";
+
+        const acceptBtn = document.createElement("button");
+        acceptBtn.className = "accept";
+        acceptBtn.textContent = "Aceitar";
+
+        const rejectBtn = document.createElement("button");
+        rejectBtn.className = "reject";
+        rejectBtn.textContent = "Recusar";
+
+        const handleAction = async (accept) => {
+          acceptBtn.disabled = true;
+          rejectBtn.disabled = true;
+          try {
+            await respondFriendRequest(request.id, accept);
+            card.remove();
+          } catch (err) {
+            console.error("Erro ao responder pedido:", err);
+            alert(err.message || "Erro ao responder pedido.");
+            acceptBtn.disabled = false;
+            rejectBtn.disabled = false;
+          }
+        };
+
+        acceptBtn.addEventListener("click", () => handleAction(true));
+        rejectBtn.addEventListener("click", () => handleAction(false));
+
+        actions.appendChild(acceptBtn);
+        actions.appendChild(rejectBtn);
+        card.appendChild(message);
+        card.appendChild(actions);
+        friendRequestToastsEl.appendChild(card);
+      }
+
+      async function pollFriendRequestToasts() {
+        if (!friendRequestToastsEl) return;
+        try {
+          const resp = await fetch("/api/friends/requests/incoming");
+          if (!resp.ok) {
+            return;
+          }
+          const data = await resp.json();
+          data.forEach((request) => {
+            if (!displayedFriendRequestToastIds.has(request.id)) {
+              displayedFriendRequestToastIds.add(request.id);
+              createFriendRequestToast(request);
+            }
+          });
+        } catch (err) {
+          console.error("Erro ao buscar pedidos pendentes:", err);
+        }
+      }
+
+      if (friendRequestToastsEl) {
+        pollFriendRequestToasts();
+        setInterval(pollFriendRequestToasts, 15000);
       }
     </script>
   </body>
