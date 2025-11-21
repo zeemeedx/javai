@@ -1,27 +1,41 @@
 package com.application.javai.service;
 
-import com.application.javai.dto.*;
+import com.application.javai.dto.FriendCandidateDTO;
+import com.application.javai.dto.FriendOverviewDTO;
+import com.application.javai.dto.FriendRequestDTO;
+import com.application.javai.dto.UserSummaryDTO;
 import com.application.javai.model.FriendRequest;
 import com.application.javai.model.FriendRequestStatus;
+import com.application.javai.model.Friendship;
 import com.application.javai.model.User;
-import com.application.javai.repository.UserRepository;
 import com.application.javai.repository.FriendRequestRepository;
+import com.application.javai.repository.FriendshipRepository;
+import com.application.javai.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class FriendService {
 
     private final FriendRequestRepository friendRequestRepository;
     private final UserRepository userRepository;
+    private final FriendshipRepository friendshipRepository;
 
     public FriendService(FriendRequestRepository friendRequestRepository,
-                         UserRepository userRepository) {
+                         UserRepository userRepository,
+                         FriendshipRepository friendshipRepository) {
         this.friendRequestRepository = friendRequestRepository;
         this.userRepository = userRepository;
+        this.friendshipRepository = friendshipRepository;
     }
 
     // ------------------ Visão geral (friends + pendentes) ------------------
@@ -166,6 +180,54 @@ public class FriendService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<FriendRequestDTO> listarPedidosRecebidosDoUsuarioLogado() {
+        User currentUser = getAuthenticatedUser();
+        return friendRequestRepository
+                .findByRequestedIdAndStatus(currentUser.getId(), FriendRequestStatus.PENDING)
+                .stream()
+                .map(this::toFriendRequestDTO)
+                .toList();
+    }
+
+    @Transactional
+    public void responderPedido(Long requestId, boolean aceitar) {
+        User currentUser = getAuthenticatedUser();
+        FriendRequest request = friendRequestRepository.findById(requestId)
+                .orElseThrow(() -> new NoSuchElementException("Pedido de amizade não encontrado."));
+
+        if (!request.getReceiver().getId().equals(currentUser.getId())) {
+            throw new SecurityException("Somente o destinatário pode responder este pedido.");
+        }
+
+        if (request.getStatus() != FriendRequestStatus.PENDING) {
+            throw new IllegalStateException("Este pedido já foi respondido.");
+        }
+
+        if (aceitar) {
+            request.setStatus(FriendRequestStatus.ACCEPTED);
+            friendRequestRepository.save(request);
+            createFriendships(request.getRequester(), currentUser);
+        } else {
+            request.setStatus(FriendRequestStatus.REJECTED);
+            friendRequestRepository.save(request);
+        }
+    }
+
+    @Transactional
+    public void removerAmigo(Long friendUserId) {
+        User currentUser = getAuthenticatedUser();
+        if (currentUser.getId().equals(friendUserId)) {
+            throw new IllegalArgumentException("Não é possível remover a si mesmo.");
+        }
+
+        userRepository.findById(friendUserId)
+                .orElseThrow(() -> new NoSuchElementException("Usuário amigo não encontrado."));
+
+        friendshipRepository.deleteByUserIdAndFriendId(currentUser.getId(), friendUserId);
+        friendshipRepository.deleteByUserIdAndFriendId(friendUserId, currentUser.getId());
+    }
+
     // ------------------ Helpers ------------------
 
     private UserSummaryDTO toUserSummary(User u) {
@@ -207,5 +269,39 @@ public class FriendService {
         }
         // REJECTED
         return "REJECTED";
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new SecurityException("Usuário não autenticado.");
+        }
+
+        Object principal = authentication.getPrincipal();
+        String username;
+        if (principal instanceof UserDetails userDetails) {
+            username = userDetails.getUsername();
+        } else if (principal instanceof User user) {
+            username = user.getEmail();
+        } else if (principal instanceof String str) {
+            username = str;
+        } else {
+            throw new IllegalStateException("Principal de autenticação inválido.");
+        }
+
+        return userRepository.findByEmail(username)
+                .orElseThrow(() -> new NoSuchElementException("Usuário autenticado não encontrado."));
+    }
+
+    private void createFriendships(User requester, User receiver) {
+        if (!friendshipRepository.existsByUserAndFriend(requester, receiver)) {
+            Friendship friendship = new Friendship(requester, receiver);
+            friendshipRepository.save(friendship);
+        }
+
+        if (!friendshipRepository.existsByUserAndFriend(receiver, requester)) {
+            Friendship friendship = new Friendship(receiver, requester);
+            friendshipRepository.save(friendship);
+        }
     }
 }

@@ -85,10 +85,8 @@ public class FriendController {
 
     // GET /api/friends/requests/incoming → pendentes recebidos (para pop-ups)
     @GetMapping("/requests/incoming")
-    public List<FriendRequestDTO> incoming(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        User currentUser = getCurrentUser(userDetails);
-        return friendService.findIncomingPending(currentUser);
+    public List<FriendRequestDTO> incoming() {
+        return friendService.listarPedidosRecebidosDoUsuarioLogado();
     }
 
     // POST /api/friends/requests/{id}/respond → aceitar/recusar
@@ -119,6 +117,34 @@ public class FriendController {
         try {
             FriendRequestDTO dto = friendService.respondToRequest(currentUser, id, accept);
             return ResponseEntity.ok(dto);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/requests/{id}/accept")
+    public ResponseEntity<?> acceptRequest(@PathVariable Long id) {
+        try {
+            friendService.responderPedido(id, true);
+            return ResponseEntity.ok().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/requests/{id}/reject")
+    public ResponseEntity<?> rejectRequest(@PathVariable Long id) {
+        try {
+            friendService.responderPedido(id, false);
+            return ResponseEntity.ok().build();
         } catch (SecurityException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (IllegalStateException e) {
