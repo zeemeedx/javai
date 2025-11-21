@@ -851,12 +851,82 @@
         background: #020617;
       }
 
-      .chat-header {
+.chat-header {
         padding: 10px 12px;
         border-bottom: 1px solid #111827;
         display: flex;
         align-items: center;
         justify-content: space-between;
+      }
+
+      .chat-voting-panel {
+        padding: 10px 12px;
+        border-bottom: 1px solid #111827;
+        background: rgba(15, 23, 42, 0.75);
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .chat-voting-panel.hidden {
+        display: none;
+      }
+
+      .voting-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        color: #93c5fd;
+        background: rgba(59, 130, 246, 0.12);
+        width: fit-content;
+      }
+
+      .voting-panel-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .voting-panel-actions button {
+        border-radius: 999px;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        background: rgba(59, 130, 246, 0.18);
+        color: #e0f2fe;
+        padding: 5px 14px;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+
+      .voting-panel-actions button.secondary {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        color: #cbd5f5;
+      }
+
+      .voting-panel-actions button:hover {
+        background: rgba(59, 130, 246, 0.3);
+      }
+
+      .voting-options-list {
+        list-style: none;
+        padding: 0;
+        margin: 4px 0 0 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .voting-options-list li {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        font-size: 0.72rem;
+        color: #e5e7eb;
       }
 
       .chat-header-left {
@@ -1120,6 +1190,135 @@
 
       .favorite-item-row button:hover {
         background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      }
+
+      .voting-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 7, 18, 0.75);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2600;
+      }
+
+      .voting-modal-overlay.visible {
+        display: flex;
+      }
+
+      .voting-modal {
+        width: min(520px, 94vw);
+        max-height: 78vh;
+        background: #010511;
+        border-radius: 22px;
+        border: 1px solid rgba(59, 130, 246, 0.25);
+        box-shadow: 0 35px 90px rgba(2, 6, 23, 0.95);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .voting-modal header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .voting-modal header h3 {
+        margin: 0;
+        font-size: 1.05rem;
+      }
+
+      .voting-modal header button {
+        border: none;
+        background: rgba(15, 23, 42, 0.8);
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        color: #cbd5f5;
+        cursor: pointer;
+      }
+
+      .voting-modal header button:hover {
+        background: rgba(59, 130, 246, 0.35);
+      }
+
+      .voting-modal-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow-y: auto;
+      }
+
+      .voting-selection-list {
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 14px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .voting-selection-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        gap: 6px;
+      }
+
+      .voting-selection-item strong {
+        font-size: 0.9rem;
+      }
+
+      .voting-selection-controls {
+        display: flex;
+        gap: 6px;
+      }
+
+      .voting-selection-controls button {
+        border: none;
+        background: rgba(15, 23, 42, 0.85);
+        color: #e5e7eb;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .voting-selection-controls button:hover {
+        border-color: rgba(59, 130, 246, 0.6);
+      }
+
+      .voting-modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+      }
+
+      .voting-modal-actions button {
+        border-radius: 999px;
+        border: none;
+        padding: 8px 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+
+      .voting-modal-actions button.primary {
+        background: linear-gradient(135deg, #2563eb, #3b82f6);
+        color: #f8fafc;
+      }
+
+      .voting-modal-actions button.secondary {
+        background: rgba(15, 23, 42, 0.85);
+        color: #cbd5f5;
+        border: 1px solid rgba(148, 163, 184, 0.3);
       }
 
       .favorite-share-card {
@@ -1435,6 +1634,8 @@
             </button>
           </header>
 
+          <div id="chat-voting-panel" class="chat-voting-panel hidden"></div>
+
           <div class="messages-container" id="messages-container">
             <!-- mensagens do contato selecionado -->
           </div>
@@ -1489,6 +1690,29 @@
           Envie rapidamente seus lugares salvos no chat.
         </p>
         <div id="favorite-modal-list" class="favorite-list"></div>
+      </div>
+    </div>
+
+    <div id="voting-modal-overlay" class="voting-modal-overlay">
+      <div class="voting-modal">
+        <header>
+          <h3 id="voting-modal-title">Votação</h3>
+          <button type="button" id="voting-modal-close">✕</button>
+        </header>
+        <p
+          id="voting-modal-hint"
+          style="margin:0;font-size:0.82rem;color:#94a3b8;"
+        >
+        </p>
+        <div id="voting-modal-body" class="voting-modal-body"></div>
+        <div class="voting-modal-actions">
+          <button type="button" class="secondary" id="voting-modal-cancel">
+            Cancelar
+          </button>
+          <button type="button" class="primary" id="voting-modal-primary">
+            Confirmar
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2233,6 +2457,7 @@
       const chatHeaderSubtitleEl = document.getElementById(
         "chat-header-subtitle"
       );
+      const chatVotingPanelEl = document.getElementById("chat-voting-panel");
       const messagesContainerEl = document.getElementById("messages-container");
       const chatInputEl = document.getElementById("chat-input");
       const chatSendButtonEl = document.getElementById("chat-send-button");
@@ -2246,12 +2471,27 @@
       const favoriteModalCloseBtn = document.getElementById(
         "favorite-modal-close"
       );
+      const votingModalOverlay = document.getElementById(
+        "voting-modal-overlay"
+      );
+      const votingModalTitleEl = document.getElementById("voting-modal-title");
+      const votingModalHintEl = document.getElementById("voting-modal-hint");
+      const votingModalBodyEl = document.getElementById("voting-modal-body");
+      const votingModalCloseBtn = document.getElementById("voting-modal-close");
+      const votingModalCancelBtn = document.getElementById("voting-modal-cancel");
+      const votingModalPrimaryBtn = document.getElementById(
+        "voting-modal-primary"
+      );
 
       let chatRooms = [];
       let chatContacts = [];
       const chatMessagesCache = new Map();
       let currentRoomId = null;
       let currentUserProfile = null;
+      let activeVotingSession = null;
+      let votingModalMode = null;
+      let votingFavoriteSelection = [];
+      let votingOptionRanking = [];
 
       async function ensureCurrentUserProfile() {
         if (currentUserProfile) return;
@@ -2305,6 +2545,64 @@
         }
       }
 
+      async function fetchActiveVotingSession(roomId) {
+        if (!roomId) {
+          activeVotingSession = null;
+          updateVotingPanel();
+          return;
+        }
+        try {
+          const resp = await fetch(`/api/voting/rooms/${roomId}/current`);
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+          if (resp.status === 404) {
+            activeVotingSession = null;
+            updateVotingPanel();
+            return;
+          }
+          if (!resp.ok) {
+            console.error("Erro ao carregar sessão de votação:", resp.status);
+            return;
+          }
+          const data = await resp.json();
+          activeVotingSession = data || null;
+          if (activeVotingSession && activeVotingSession.options) {
+            activeVotingSession.options = activeVotingSession.options.map(
+              (opt) => ({
+                ...opt,
+                place: opt.place || opt.favoritePlace,
+              })
+            );
+          }
+          updateVotingPanel();
+        } catch (err) {
+          console.error("Erro ao buscar votação:", err);
+        }
+      }
+
+      async function fetchChatContacts() {
+        try {
+          const resp = await fetch("/api/friends");
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+          if (!resp.ok) {
+            console.error("Erro ao carregar amigos para o chat:", resp.status);
+            return;
+          }
+          const data = await resp.json();
+          chatContacts = Array.isArray(data.friends) ? data.friends : [];
+          renderContactList(contactSearchInput ? contactSearchInput.value : "");
+        } catch (err) {
+          console.error("Erro ao buscar contatos do chat:", err);
+        }
+      }
+
       async function abrirChat() {
         if (!chatOverlay) return;
         chatOverlay.style.display = "flex";
@@ -2315,6 +2613,8 @@
           await selecionarContato(chatRooms[0].id);
         } else {
           renderMessages();
+          await fetchActiveVotingSession(currentRoomId);
+          updateVotingPanel();
         }
         chatInputEl?.focus();
       }
@@ -2456,7 +2756,9 @@
         currentRoomId = roomId;
         renderContactList(contactSearchInput ? contactSearchInput.value : "");
         await ensureMessagesForRoom(roomId);
+        await fetchActiveVotingSession(roomId);
         renderMessages();
+        updateVotingPanel();
       }
 
       async function startDirectChatWithFriend(friendId) {
@@ -2592,6 +2894,404 @@
         messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
       }
 
+      function updateVotingPanel() {
+        if (!chatVotingPanelEl) return;
+        const room = chatRooms.find((r) => r.id === currentRoomId);
+        if (!room || room.type !== "GROUP") {
+          chatVotingPanelEl.classList.add("hidden");
+          chatVotingPanelEl.innerHTML = "";
+          return;
+        }
+
+        chatVotingPanelEl.classList.remove("hidden");
+        const isAdmin =
+          room.adminId && currentUserProfile
+            ? room.adminId === currentUserProfile.id
+            : false;
+
+        let html = "";
+
+        if (!activeVotingSession) {
+          html += `<span class="voting-status-pill">Sem votação ativa</span>`;
+          if (isAdmin) {
+            html += `<div class="voting-panel-actions"><button id="btn-open-create-voting">Iniciar rolê / votação</button></div>`;
+          } else {
+            html += `<p style="margin:0;font-size:0.78rem;color:#94a3b8;">Aguarde o admin iniciar uma votação.</p>`;
+          }
+        } else {
+          const statusLabel =
+            activeVotingSession.status === "OPEN"
+              ? "Votação em andamento"
+              : "Votação encerrada";
+          html += `<span class="voting-status-pill">${statusLabel}</span>`;
+
+          if (
+            activeVotingSession.options &&
+            activeVotingSession.options.length
+          ) {
+            html += `<ul class="voting-options-list">`;
+            activeVotingSession.options.forEach((opt, idx) => {
+              const placeName = opt.place?.name ?? "(sem nome)";
+              html += `<li>${idx + 1}. ${placeName}</li>`;
+            });
+            html += `</ul>`;
+          }
+
+          if (activeVotingSession.status === "OPEN") {
+            html += `<div class="voting-panel-actions">`;
+            html += `<button id="btn-open-vote-modal">Ordenar lugares e votar</button>`;
+            if (isAdmin) {
+              html += `<button class="secondary" id="btn-close-voting">Encerrar votação</button>`;
+            }
+            html += `</div>`;
+          } else if (activeVotingSession.winningOption) {
+            const winnerName =
+              activeVotingSession.winningOption.place?.name ?? "(sem nome)";
+            html += `<p style="margin:0;font-size:0.8rem;color:#cbd5f5;">Lugar escolhido: <strong>${winnerName}</strong></p>`;
+            if (isAdmin) {
+              html += `<div class="voting-panel-actions"><button id="btn-open-create-voting">Iniciar nova votação</button></div>`;
+            }
+          } else {
+            html += `<p style="margin:0;font-size:0.8rem;color:#cbd5f5;">Nenhum vencedor definido.</p>`;
+            if (isAdmin) {
+              html += `<div class="voting-panel-actions"><button id="btn-open-create-voting">Iniciar nova votação</button></div>`;
+            }
+          }
+        }
+
+        chatVotingPanelEl.innerHTML = html;
+
+        const openCreateBtn = document.getElementById("btn-open-create-voting");
+        openCreateBtn?.addEventListener("click", () => openVotingModalCreate());
+
+        const openVoteBtn = document.getElementById("btn-open-vote-modal");
+        openVoteBtn?.addEventListener("click", () => openVotingModalVote());
+
+        const closeVotingBtn = document.getElementById("btn-close-voting");
+        closeVotingBtn?.addEventListener("click", () => encerrarVotacao());
+      }
+
+      function openVotingModalCreate() {
+        if (!favoritePlacesList.length) {
+          showFeedbackToast("Você ainda não favoritou lugares.");
+          return;
+        }
+        votingModalMode = "CREATE";
+        votingFavoriteSelection = favoritePlacesList.slice(
+          0,
+          Math.min(3, favoritePlacesList.length)
+        );
+        renderVotingModal();
+        votingModalOverlay?.classList.add("visible");
+      }
+
+      function openVotingModalVote() {
+        if (!activeVotingSession || !activeVotingSession.options) {
+          showFeedbackToast("Nenhuma votação ativa.");
+          return;
+        }
+        votingModalMode = "VOTE";
+        votingOptionRanking = activeVotingSession.options.map((opt) => ({
+          ...opt,
+        }));
+        renderVotingModal();
+        votingModalOverlay?.classList.add("visible");
+      }
+
+      function closeVotingModal() {
+        votingModalOverlay?.classList.remove("visible");
+        votingModalMode = null;
+      }
+
+      function renderVotingModal() {
+        if (!votingModalBodyEl) return;
+        votingModalBodyEl.innerHTML = "";
+
+        if (votingModalMode === "CREATE") {
+          votingModalTitleEl.textContent = "Iniciar rolê / votação";
+          votingModalHintEl.textContent =
+            "Escolha ao menos dois favoritos e defina a ordem de preferência.";
+          votingModalPrimaryBtn.textContent = "Iniciar votação";
+
+          const availableWrapper = document.createElement("div");
+          availableWrapper.innerHTML =
+            "<h4 style='margin:0 0 6px 0;font-size:0.85rem;color:#93c5fd;'>Meus favoritos</h4>";
+          const availableList = document.createElement("div");
+          availableList.className = "voting-selection-list";
+          const selectedIds = new Set(
+            votingFavoriteSelection.map((fav) => fav.id)
+          );
+          const availableFavorites = favoritePlacesList.filter(
+            (fav) => !selectedIds.has(fav.id)
+          );
+          if (!availableFavorites.length) {
+            const empty = document.createElement("p");
+            empty.style.margin = "0";
+            empty.style.fontSize = "0.78rem";
+            empty.style.color = "#94a3b8";
+            empty.textContent = "Todos os favoritos já estão na seleção.";
+            availableList.appendChild(empty);
+          } else {
+            availableFavorites.forEach((fav) => {
+              const row = document.createElement("div");
+              row.className = "favorite-item-row";
+              const info = document.createElement("div");
+              info.className = "favorite-item-info";
+              const title = document.createElement("strong");
+              title.textContent = fav.name ?? "(sem nome)";
+              const type = document.createElement("span");
+              type.textContent = traducoes[fav.type] || fav.type || "Lugar";
+              info.appendChild(title);
+              info.appendChild(type);
+              const addBtn = document.createElement("button");
+              addBtn.type = "button";
+              addBtn.textContent = "+";
+              addBtn.style.width = "32px";
+              addBtn.addEventListener("click", () => {
+                votingFavoriteSelection.push(fav);
+                renderVotingModal();
+              });
+              row.appendChild(info);
+              row.appendChild(addBtn);
+              availableList.appendChild(row);
+            });
+          }
+          availableWrapper.appendChild(availableList);
+          votingModalBodyEl.appendChild(availableWrapper);
+
+          const selectedWrapper = document.createElement("div");
+          selectedWrapper.innerHTML =
+            "<h4 style='margin:10px 0 6px 0;font-size:0.85rem;color:#93c5fd;'>Ordem da votação</h4>";
+          const selectedList = document.createElement("div");
+          selectedList.className = "voting-selection-list";
+          if (!votingFavoriteSelection.length) {
+            const empty = document.createElement("p");
+            empty.style.margin = "0";
+            empty.style.fontSize = "0.78rem";
+            empty.style.color = "#94a3b8";
+            empty.textContent = "Selecione ao menos dois lugares.";
+            selectedList.appendChild(empty);
+          } else {
+            votingFavoriteSelection.forEach((fav, index) => {
+              const item = document.createElement("div");
+              item.className = "voting-selection-item";
+              const info = document.createElement("strong");
+              info.textContent = `${index + 1}. ${fav.name ?? "(sem nome)"}`;
+              item.appendChild(info);
+              const controls = document.createElement("div");
+              controls.className = "voting-selection-controls";
+
+              const upBtn = document.createElement("button");
+              upBtn.textContent = "↑";
+              upBtn.disabled = index === 0;
+              upBtn.addEventListener("click", () => {
+                moveFavoriteSelection(index, -1);
+              });
+              const downBtn = document.createElement("button");
+              downBtn.textContent = "↓";
+              downBtn.disabled = index === votingFavoriteSelection.length - 1;
+              downBtn.addEventListener("click", () => {
+                moveFavoriteSelection(index, 1);
+              });
+              const removeBtn = document.createElement("button");
+              removeBtn.textContent = "×";
+              removeBtn.addEventListener("click", () => {
+                votingFavoriteSelection.splice(index, 1);
+                renderVotingModal();
+              });
+              controls.appendChild(upBtn);
+              controls.appendChild(downBtn);
+              controls.appendChild(removeBtn);
+              item.appendChild(controls);
+              selectedList.appendChild(item);
+            });
+          }
+          selectedWrapper.appendChild(selectedList);
+          votingModalBodyEl.appendChild(selectedWrapper);
+        } else if (votingModalMode === "VOTE") {
+          votingModalTitleEl.textContent = "Ordenar lugares para o rolê";
+          votingModalHintEl.textContent =
+            "Arrume as preferências de cima para baixo e envie seu voto.";
+          votingModalPrimaryBtn.textContent = "Enviar ranking";
+
+          const list = document.createElement("div");
+          list.className = "voting-selection-list";
+          votingOptionRanking.forEach((opt, index) => {
+            const item = document.createElement("div");
+            item.className = "voting-selection-item";
+            const info = document.createElement("strong");
+            info.textContent = `${index + 1}. ${
+              opt.place?.name ?? "(sem nome)"
+            }`;
+            item.appendChild(info);
+            const controls = document.createElement("div");
+            controls.className = "voting-selection-controls";
+            const upBtn = document.createElement("button");
+            upBtn.textContent = "↑";
+            upBtn.disabled = index === 0;
+            upBtn.addEventListener("click", () =>
+              moveVotingOption(index, -1)
+            );
+            const downBtn = document.createElement("button");
+            downBtn.textContent = "↓";
+            downBtn.disabled = index === votingOptionRanking.length - 1;
+            downBtn.addEventListener("click", () => moveVotingOption(index, 1));
+            controls.appendChild(upBtn);
+            controls.appendChild(downBtn);
+            item.appendChild(controls);
+            list.appendChild(item);
+          });
+          votingModalBodyEl.appendChild(list);
+        }
+      }
+
+      function moveFavoriteSelection(index, direction) {
+        const target = index + direction;
+        if (
+          target < 0 ||
+          target >= votingFavoriteSelection.length ||
+          target === index
+        ) {
+          return;
+        }
+        const [item] = votingFavoriteSelection.splice(index, 1);
+        votingFavoriteSelection.splice(target, 0, item);
+        renderVotingModal();
+      }
+
+      function moveVotingOption(index, direction) {
+        const target = index + direction;
+        if (
+          target < 0 ||
+          target >= votingOptionRanking.length ||
+          target === index
+        ) {
+          return;
+        }
+        const [item] = votingOptionRanking.splice(index, 1);
+        votingOptionRanking.splice(target, 0, item);
+        renderVotingModal();
+      }
+
+      async function submitVotingModal() {
+        if (votingModalMode === "CREATE") {
+          await submitCreateVoting();
+        } else if (votingModalMode === "VOTE") {
+          await submitRankingVote();
+        }
+      }
+
+      async function submitCreateVoting() {
+        if (!currentRoomId) {
+          showFeedbackToast("Selecione um grupo.");
+          return;
+        }
+        if (!votingFavoriteSelection || votingFavoriteSelection.length < 2) {
+          showFeedbackToast("Escolha ao menos dois lugares.");
+          return;
+        }
+        const ids = votingFavoriteSelection.map((fav) => fav.id);
+        try {
+          const resp = await fetch("/api/voting/sessions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              roomId: currentRoomId,
+              favoritePlaceIds: ids,
+            }),
+          });
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+          if (!resp.ok) {
+            const text = await resp.text();
+            showFeedbackToast(text || "Não foi possível iniciar a votação.");
+            return;
+          }
+          closeVotingModal();
+          await fetchActiveVotingSession(currentRoomId);
+        } catch (err) {
+          console.error("Erro ao iniciar votação:", err);
+          showFeedbackToast("Erro ao iniciar votação.");
+        }
+      }
+
+      async function submitRankingVote() {
+        if (!activeVotingSession) {
+          showFeedbackToast("Nenhuma votação ativa.");
+          return;
+        }
+        const orderedIds = votingOptionRanking.map((opt) => opt.id);
+        try {
+          const resp = await fetch(
+            `/api/voting/sessions/${activeVotingSession.id}/votes`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                orderedOptionIds: orderedIds,
+              }),
+            }
+          );
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+          if (!resp.ok) {
+            const text = await resp.text();
+            showFeedbackToast(text || "Não foi possível registrar o voto.");
+            return;
+          }
+          closeVotingModal();
+          showFeedbackToast("Voto registrado!");
+        } catch (err) {
+          console.error("Erro ao registrar voto:", err);
+          showFeedbackToast("Erro ao registrar voto.");
+        }
+      }
+
+      async function encerrarVotacao() {
+        if (!activeVotingSession) {
+          return;
+        }
+        try {
+          const resp = await fetch(
+            `/api/voting/sessions/${activeVotingSession.id}/close`,
+            { method: "POST" }
+          );
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+          if (!resp.ok) {
+            const text = await resp.text();
+            showFeedbackToast(text || "Não foi possível encerrar a votação.");
+            return;
+          }
+          activeVotingSession = await resp.json();
+          if (activeVotingSession && activeVotingSession.options) {
+            activeVotingSession.options = activeVotingSession.options.map(
+              (opt) => ({
+                ...opt,
+                place: opt.place || opt.favoritePlace,
+              })
+            );
+          }
+          updateVotingPanel();
+        } catch (err) {
+          console.error("Erro ao encerrar votação:", err);
+          showFeedbackToast("Erro ao encerrar votação.");
+        }
+      }
+
       async function enviarMensagemAtual(contentOverride = null, favoritePlaceId = null) {
         if (!currentRoomId) {
           showFeedbackToast("Selecione uma conversa.");
@@ -2655,6 +3355,17 @@
 
       contactSearchInput?.addEventListener("input", (e) => {
         renderContactList(e.target.value);
+      });
+
+      votingModalPrimaryBtn?.addEventListener("click", () =>
+        submitVotingModal()
+      );
+      votingModalCancelBtn?.addEventListener("click", () => closeVotingModal());
+      votingModalCloseBtn?.addEventListener("click", () => closeVotingModal());
+      votingModalOverlay?.addEventListener("click", (event) => {
+        if (event.target === votingModalOverlay) {
+          closeVotingModal();
+        }
       });
 
       function renderFavoriteModalList() {
