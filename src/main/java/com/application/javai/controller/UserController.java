@@ -1,7 +1,10 @@
-package com.application.javai;
+package com.application.javai.controller;
 
 import java.util.List;
 
+import com.application.javai.model.User;
+import com.application.javai.repository.UserRepository;
+import com.application.javai.service.UserService;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

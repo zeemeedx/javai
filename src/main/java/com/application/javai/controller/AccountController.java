@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.application.javai.User;
-import com.application.javai.UserRepository;
 import com.application.javai.dto.UserDTO;
+import com.application.javai.model.User;
+import com.application.javai.repository.UserRepository;
 
 @RestController
 public class AccountController {

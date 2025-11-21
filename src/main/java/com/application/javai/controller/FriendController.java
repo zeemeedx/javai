@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.application.javai.User;
-import com.application.javai.UserRepository;
 import com.application.javai.dto.FriendCandidateDTO;
 import com.application.javai.dto.FriendOverviewDTO;
 import com.application.javai.dto.FriendRequestDTO;
+import com.application.javai.model.User;
+import com.application.javai.repository.UserRepository;
 import com.application.javai.service.FriendService;
 
 @RestController

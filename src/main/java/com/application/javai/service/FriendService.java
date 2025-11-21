@@ -1,10 +1,10 @@
 package com.application.javai.service;
 
-import com.application.javai.UserRepository;
 import com.application.javai.dto.*;
 import com.application.javai.model.FriendRequest;
 import com.application.javai.model.FriendRequestStatus;
-import com.application.javai.User;
+import com.application.javai.model.User;
+import com.application.javai.repository.UserRepository;
 import com.application.javai.repository.FriendRequestRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

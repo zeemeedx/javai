@@ -1,7 +1,6 @@
 package com.application.javai.model;
-import java.time.Instant;
 
-import com.application.javai.User;
+import java.time.Instant;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

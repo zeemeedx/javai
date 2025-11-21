@@ -1,7 +1,7 @@
 package com.application.javai.auth;
 
-import com.application.javai.User;
-import com.application.javai.UserRepository;
+import com.application.javai.model.User;
+import com.application.javai.repository.UserRepository;
 import com.application.javai.auth.dto.*;
 import lombok.RequiredArgsConstructor;
 

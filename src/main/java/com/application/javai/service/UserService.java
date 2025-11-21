@@ -1,5 +1,6 @@
-package com.application.javai;
+package com.application.javai.service;
 
+import com.application.javai.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
