@@ -13,6 +13,14 @@
     />
 
     <style>
+      :root {
+        --panel-bg: rgba(15, 23, 42, 0.85);
+        --main-text: #e5e7eb;
+        --border-color: #111827;
+        --blue: #3b82f6;
+        --dark-blue: #1d4ed8;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -23,53 +31,86 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: #020617;
-        color: #e5e7eb;
+        color: var(--main-text);
       }
 
       .app-header {
         padding: 8px 12px;
         background: #020617;
-        border-bottom: 1px solid #111827;
+        border-bottom: 1px solid var(--border-color);
         font-size: 0.9rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        z-index: 1000;
+        z-index: 1001; /* Acima dos paineis */
       }
 
-      .app-header .title {
-        font-weight: 600;
-      }
-
-      .app-header .user {
-        font-size: 0.8rem;
-        color: #9ca3af;
-      }
-
-      #coords {
-        position: absolute;
-        top: 44px;
-        left: 8px;
-        background: rgba(15, 23, 42, 0.85);
-        color: #e5e7eb;
-        padding: 6px 8px;
-        border-radius: 8px;
-        font-size: 0.75rem;
-        z-index: 1000;
-      }
+      .app-header .title { font-weight: 600; }
+      .app-header .user { font-size: 0.8rem; color: #9ca3af; }
 
       #map {
         flex: 1;
         width: 100vw;
       }
 
+      /* Painel de Coordenadas (movido para baixo) */
+      #coords {
+        position: absolute;
+        bottom: 64px; /* Acima da barra de navegação */
+        left: 8px;
+        background: var(--panel-bg);
+        padding: 6px 8px;
+        border-radius: 8px;
+        font-size: 0.75rem;
+        z-index: 1000;
+        max-width: 300px;
+      }
+
+      /* Painel de Filtro de Categorias */
+      #category-filter {
+        position: absolute;
+        top: 44px;
+        left: 8px;
+        background: var(--panel-bg);
+        padding: 8px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        z-index: 1000;
+        max-height: 50vh;
+        max-width: 200px;
+        overflow-y: auto;
+      }
+      #category-filter h4 {
+        margin: 0 0 8px 0;
+        font-size: 0.85rem;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 4px;
+      }
+      .category-item {
+        display: block;
+        margin-bottom: 5px;
+      }
+      .category-item label {
+        cursor: pointer;
+        user-select: none;
+        margin-left: 4px;
+      }
+      .category-item input {
+        cursor: pointer;
+      }
+
+      /* Loader para categorias */
+      .loader {
+        font-size: 0.75rem;
+        color: #9ca3af;
+      }
+
       .bottom-nav {
         height: 56px;
         background: #020617;
-        border-top: 1px solid #111827;
+        border-top: 1px solid var(--border-color);
         display: flex;
         justify-content: space-around;
         align-items: center;
@@ -91,7 +132,7 @@
       }
 
       .bottom-nav button span.icon {
-        font-size: 1.1rem;
+        font-size: 1.2rem;
       }
 
       .bottom-nav button.active {
@@ -100,12 +141,9 @@
       }
 
       @media (max-width: 480px) {
-        .app-header {
-          font-size: 0.8rem;
-        }
-        #coords {
-          font-size: 0.7rem;
-        }
+        .app-header { font-size: 0.8rem; }
+        #coords { font-size: 0.7rem; bottom: 60px; }
+        #category-filter { font-size: 0.75rem; padding: 6px 8px; }
       }
 
       /* -------- Overlay + Card da Conta -------- */
@@ -225,6 +263,17 @@
         border: none;
         background: transparent;
         color: #9ca3af;
+      /* Botão customizado para o Leaflet */
+      .leaflet-control-custom {
+        background-color: white;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        background-clip: padding-box;
+        border-radius: 4px;
+        width: 34px !important;
+        height: 34px !important;
+        text-align: center;
+        line-height: 30px;
+        font-size: 1.2rem;
         cursor: pointer;
         font-size: 0.85rem;
         padding: 2px;
@@ -402,6 +451,300 @@
         .account-card {
           padding: 16px 14px 12px;
         }
+      /* Ícone de círculo azul para a localização real do usuário */
+      .blue-circle-icon div {
+        width: 16px;
+        height: 16px;
+        background-color: var(--blue);
+        border: 2px solid var(--dark-blue);
+        border-radius: 50%;
+        box-shadow: 0 0 6px rgba(0, 0, 0, 0.5);
+      }
+
+      /* -------- Overlay do Chat (mapa ao fundo, estilo Telegram) -------- */
+
+      .overlay-chat {
+        position: fixed;
+        inset: 0;
+        background: rgba(3, 7, 18, 0.45); /* mapa aparece atrás */
+        backdrop-filter: blur(4px);
+        display: none; /* controlado via JS */
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 16px;
+      }
+
+      /* container principal do chat */
+      .chat-app-container {
+        width: min(100%, 960px);
+        height: min(80vh, 620px);
+        background: #020617;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.85),
+          0 0 0 1px rgba(15, 23, 42, 0.9);
+        display: flex;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+      }
+
+      /* SIDEBAR (lista de amigos) */
+
+      .sidebar {
+        width: 30%;
+        min-width: 230px;
+        background: #020617;
+        border-right: 1px solid #111827;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-header {
+        padding: 10px 12px;
+        border-bottom: 1px solid #111827;
+      }
+
+      .sidebar-header h3 {
+        margin: 0 0 6px;
+        font-size: 0.9rem;
+        color: #e5e7eb;
+      }
+
+      .sidebar-header input {
+        width: 100%;
+        padding: 6px 8px;
+        border-radius: 999px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.8rem;
+      }
+
+      .sidebar-header input::placeholder {
+        color: #6b7280;
+      }
+
+      .sidebar-header input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .contact-list {
+        list-style: none;
+        padding: 4px 0;
+        margin: 0;
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        cursor: pointer;
+        gap: 10px;
+        font-size: 0.85rem;
+        color: #e5e7eb;
+        transition: background 0.2s ease;
+      }
+
+      .contact-item:hover {
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      .contact-item.active {
+        background: rgba(37, 99, 235, 0.18);
+      }
+
+      .contact-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #3b82f6, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #e5e7eb;
+      }
+
+      /* ÁREA PRINCIPAL DO CHAT */
+
+      .chat-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #020617;
+      }
+
+      .chat-header {
+        padding: 10px 12px;
+        border-bottom: 1px solid #111827;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .chat-header-left {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .chat-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .chat-subtitle {
+        font-size: 0.7rem;
+        color: #9ca3af;
+      }
+
+      .chat-close-btn {
+        border: none;
+        background: rgba(15, 23, 42, 0.9);
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 1rem;
+        width: 26px;
+        height: 26px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .chat-close-btn:hover {
+        background: rgba(148, 163, 184, 0.25);
+        color: #e5e7eb;
+      }
+
+      /* Mensagens */
+
+      .messages-container {
+        flex: 1;
+        padding: 12px 12px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        font-size: 0.8rem;
+      }
+
+      .message-row {
+        display: flex;
+      }
+
+      .message-row.me {
+        justify-content: flex-end;
+      }
+
+      .message-row.other {
+        justify-content: flex-start;
+      }
+
+      .message-bubble {
+        max-width: 68%;
+        padding: 7px 10px;
+        border-radius: 14px;
+        line-height: 1.4;
+        word-wrap: break-word;
+      }
+
+      .message-row.me .message-bubble {
+        background: #3b82f6;
+        color: #e5e7eb;
+        border-bottom-right-radius: 4px;
+      }
+
+      .message-row.other .message-bubble {
+        background: #111827;
+        color: #e5e7eb;
+        border-bottom-left-radius: 4px;
+        border: 1px solid #1f2937;
+      }
+
+      .message-meta {
+        display: block;
+        font-size: 0.65rem;
+        color: #9ca3af;
+        margin-top: 2px;
+      }
+
+      /* Input */
+
+      .input-area {
+        padding: 10px 12px;
+        border-top: 1px solid #111827;
+        display: flex;
+        gap: 8px;
+        background: #020617;
+      }
+
+      .input-area input {
+        flex: 1;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.8rem;
+      }
+
+      .input-area input::placeholder {
+        color: #6b7280;
+      }
+
+      .input-area input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .input-area button {
+        padding: 0 12px;
+        border-radius: 999px;
+        border: none;
+        background: #3b82f6;
+        color: #e5e7eb;
+        cursor: pointer;
+        font-size: 0.8rem;
+      }
+
+      .input-area button:hover {
+        background: #2563eb;
+      }
+
+      /* Responsivo */
+
+      @media (max-width: 768px) {
+        .chat-app-container {
+          width: 100%;
+          height: 80vh;
+          border-radius: 16px;
+        }
+
+        .sidebar {
+          width: 38%;
+          min-width: 0;
+        }
+
+        .message-bubble {
+          max-width: 80%;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .chat-app-container {
+          flex-direction: column;
+        }
+
+        .sidebar {
+          width: 100%;
+          border-right: none;
+          border-bottom: 1px solid #111827;
+        }
       }
     </style>
   </head>
@@ -411,6 +754,7 @@
       <div class="user">Online</div>
     </header>
 
+    <div id="category-filter"></div>
     <div id="coords">Localização: carregando...</div>
 
     <div id="map"></div>
@@ -499,27 +843,73 @@
         </div>
       </div>
     </div>
+    
+    <!-- Overlay do CHAT -->
+    <div id="chat-overlay" class="overlay-chat">
+      <div class="chat-app-container" id="chat-app-container">
+        <!-- SIDEBAR: lista de amigos -->
+        <aside class="sidebar">
+          <div class="sidebar-header">
+            <h3>Amigos</h3>
+            <input
+              type="text"
+              id="contact-search"
+              placeholder="Buscar pelo nome..."
+            />
+          </div>
+          <ul class="contact-list" id="contact-list">
+            <!-- preenchida via JS -->
+          </ul>
+        </aside>
+
+        <!-- ÁREA DO CHAT -->
+        <section class="chat-area">
+          <header class="chat-header">
+            <div class="chat-header-left">
+              <div class="chat-title" id="chat-header-title">
+                Selecione um amigo
+              </div>
+              <div class="chat-subtitle" id="chat-header-subtitle">
+                A conversa aparece aqui
+              </div>
+            </div>
+            <button
+              class="chat-close-btn"
+              id="chat-close-btn"
+              aria-label="Fechar chat"
+            >
+              ✕
+            </button>
+          </header>
+
+          <div class="messages-container" id="messages-container">
+            <!-- mensagens do contato selecionado -->
+          </div>
+
+          <div class="input-area">
+            <input
+              type="text"
+              id="chat-input"
+              placeholder="Digite uma mensagem..."
+            />
+            <button type="button" id="chat-send-button">Enviar</button>
+          </div>
+        </section>
+      </div>
+    </div>
 
     <nav class="bottom-nav">
-      <button class="tab" data-tab="historico">
-        <span class="icon">🕒</span>
-        <span>Histórico</span>
-      </button>
-      <button class="tab" data-tab="grupos">
-        <span class="icon">👥</span>
-        <span>Grupos</span>
+      <button class="tab" data-tab="conta">
+        <span class="icon">⚙️</span>
+        <span>Conta</span>
       </button>
       <button class="tab active" data-tab="explorar">
         <span class="icon">🧭</span>
         <span>Explorar</span>
       </button>
-      <button class="tab" data-tab="recomendacoes">
-        <span class="icon">✨</span>
-        <span>Recomendações</span>
-      </button>
-      <button class="tab" data-tab="conta">
-        <span class="icon">⚙️</span>
-        <span>Conta</span>
+      <button class="tab" data-tab="chat">
+        <span class="icon">💬</span>
+        <span>Chat</span>
       </button>
     </nav>
 
@@ -529,6 +919,7 @@
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
     ></script>
+    <script src="js/traducoes.js" defer></script>
 
     <script>
       // -------- Overlay da Conta / UI --------
@@ -801,17 +1192,35 @@
 
       // -------- Mapa + OSM / Overpass --------
 
+      // --------- Elementos da UI ---------
+      const coordsDiv = document.getElementById("coords");
+      const categoryFilterDiv = document.getElementById("category-filter");
+
+      // --------- Estado da Aplicação ---------
+      let userActualLocation = null;
+      let currentSearchCoords = null;
+      let allFoundPlaces = [];
       const defaultLat = -22.9068;
       const defaultLon = -43.1729;
-      const defaultRadius = 1000;
+      const defaultRadius = 1500;
+      const defaultCheckedCategories = new Set([
+        'place_of_worship', 'restaurant', 'fast_food', 'cafe', 'bar',
+        'ice_cream', 'pub', 'cinema', 'theatre', 'nightclub', 'university'
+      ]);
 
-      const map = L.map("map").setView([defaultLat, defaultLon], 12);
+      // Estilo para o círculo de raio
+      const radiusCircleOptions = {
+        color: '#000000',
+        weight: 2,
+        opacity: 1,
+        fill: false,
+        dashArray: '5, 10'
+      };
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
-
+      // --------- Inicialização do Mapa (Leaflet) ---------
+      const map = L.map("map", { zoomControl: false }).setView([defaultLat, defaultLon], 12);
+      L.control.zoom({ position: "topright" }).addTo(map);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
       const markersLayer = L.layerGroup().addTo(map);
       const coordsDiv = document.getElementById("coords");
 
@@ -832,119 +1241,376 @@
         shadowSize: [41, 41],
       });
 
-      let userMarker = null;
-
-      function setUserMarker(lat, lon, label) {
-        console.log("userMarker vai pra:", lat, lon, "→", label);
-        atualizarCoordsLabel(lat, lon, label);
-
-        if (userMarker) {
-          userMarker.setLatLng([lat, lon]);
-          userMarker.setPopupContent(label);
-        } else {
-          userMarker = L.marker([lat, lon], { icon: userIcon })
-            .addTo(map)
-            .bindPopup(label);
-        }
-      }
-
-      async function carregarPlaces(lat, lon, radius = defaultRadius) {
-        try {
-          const url = `/api/places?lat=${lat}&lon=${lon}&radius=${radius}`;
-          console.log("Chamando:", url);
-
-          const response = await fetch(url);
-          if (!response.ok) {
-            console.error("Erro ao chamar /api/places:", response.status);
-            return;
-          }
-
-          const places = await response.json();
-          console.log("Places recebidos:", places.length, places);
-
-          markersLayer.clearLayers();
-
-          if (!places.length) {
-            console.warn("Nenhum place recebido da API");
-            return;
-          }
-
-          places.forEach((place) => {
-            const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
-            marker.bindPopup(`
-              <b>${place.name}</b><br/>
-              Tipo: ${place.type}<br/>
-              <button onclick="combinarRole(${place.id})">
-                Combinar rolê
-              </button>
-            `);
-          });
-        } catch (error) {
-          console.error("Erro ao carregar places:", error);
-        }
-      }
-
-      map.on("click", function (e) {
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
-
-        console.log("Posição ajustada manualmente:", lat, lon);
-
-        setUserMarker(lat, lon, "Posição ajustada por você");
-        carregarPlaces(lat, lon, defaultRadius);
+      const blueCircleIcon = L.divIcon({
+        className: "blue-circle-icon",
+        html: "<div></div>",
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
 
-      function combinarRole(placeId) {
-        alert(
-          "Combinar rolê no lugar ID " +
-            placeId +
-            " (futuro: abrir fluxo de grupo/votação)"
+      // 📌 Pino vermelho (marcador de busca), móvel
+      let searchMarker = null;
+      let locationMarker = null;
+      let searchRadiusCircle = null; // Círculo pontilhado do raio
+
+      // --------- Controle Customizado "Home" ---------
+      const HomeButton = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function (map) {
+          const btn = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom');
+          btn.innerHTML = '🏠';
+          L.DomEvent.on(btn, 'click', (e) => {
+            L.DomEvent.stop(e);
+            if (userActualLocation) {
+              map.setView([userActualLocation.lat, userActualLocation.lng], 14);
+              setSearchMarker(userActualLocation.lat, userActualLocation.lng, "Buscando a partir da sua localização");
+            } else {
+              alert(
+                "Ainda não foi possível obter sua localização inicial. Tente recarregar a página."
+              );
+            }
+          });
+          return btn;
+        },
+      });
+      map.addControl(new HomeButton());
+
+      // --------- Lógica de Eventos do Mapa ---------
+      map.on("click", function (e) {
+        const { lat, lng } = e.latlng;
+        setSearchMarker(lat, lng, "Buscando a partir daqui");
+      });
+
+      categoryFilterDiv.addEventListener('change', () => {
+        aplicarFiltroEAtualizarMapa();
+      });
+
+      // --------- Funções Principais da Lógica de Filtragem ---------
+      function setSearchMarker(lat, lon, label) {
+        currentSearchCoords = { lat, lon };
+        atualizarCoordsLabel(`Buscando em: ${lat.toFixed(5)}, ${lon.toFixed(5)}`);
+        
+        if (searchMarker) {
+          searchMarker.setLatLng([lat, lon]);
+          searchMarker.setPopupContent(label);
+        } else {
+          searchMarker = L.marker([lat, lon], { icon: userIcon }).addTo(map).bindPopup(label).openPopup();
+        }
+
+        // Desenha ou move o círculo de raio
+        if (searchRadiusCircle) {
+          searchRadiusCircle.setLatLng([lat, lon]);
+        } else {
+          searchRadiusCircle = L.circle([lat, lon], { ...radiusCircleOptions, radius: defaultRadius }).addTo(map);
+        }
+
+        carregarPlaces();
+      }
+
+      async function carregarPlaces() {
+        if (!currentSearchCoords) return;
+        categoryFilterDiv.innerHTML = '<span class="loader">Buscando locais...</span>';
+          markersLayer.clearLayers();
+        const { lat, lon } = currentSearchCoords;
+        try {
+          const url = `/api/places?lat=${lat}&lon=${lon}&radius=${defaultRadius}`;
+          const response = await fetch(url);
+          if (!response.ok) {
+            categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
+            if (response.status === 401 || response.status === 403) {
+              alert("Sessão expirada. Por favor, faça login novamente.");
+              window.location.href = "/";
+            }
+            return;
+          }
+          allFoundPlaces = await response.json();
+          atualizarFiltroCategorias(allFoundPlaces);
+          aplicarFiltroEAtualizarMapa();
+        } catch (error) {
+          console.error("Erro ao carregar places:", error);
+          categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
+        }
+      }
+
+      function atualizarFiltroCategorias(places) {
+        if (places.length === 0) {
+          categoryFilterDiv.innerHTML = '<span class="loader">Nenhum local encontrado.</span>';
+          return;
+        }
+        const categories = [...new Set(places.map(p => p.type))].sort();
+        categoryFilterDiv.innerHTML = '<h4>Categorias</h4>';
+        categories.forEach(cat => {
+          const id = `cat-${cat}`;
+          const item = document.createElement('div');
+          item.className = 'category-item';
+          const labelTraduzida = traducoes[cat] || cat.replace(/_/g, ' ');
+          const isChecked = defaultCheckedCategories.has(cat) ? 'checked' : '';
+          item.innerHTML = `
+            <input type="checkbox" id="${id}" value="${cat}" ${isChecked}>
+            <label for="${id}">${labelTraduzida}</label>
+          `;
+          categoryFilterDiv.appendChild(item);
+        });
+      }
+
+      function aplicarFiltroEAtualizarMapa() {
+        const selectedCategories = new Set(
+          Array.from(categoryFilterDiv.querySelectorAll('input:checked')).map(input => input.value)
+        );
+        const placesFiltrados = allFoundPlaces.filter(place => selectedCategories.has(place.type));
+        markersLayer.clearLayers();
+        placesFiltrados.forEach((place) => {
+          const marker = L.marker([place.lat, place.lon]).addTo(markersLayer);
+          const tipoTraduzido = traducoes[place.type] || place.type.replace(/_/g, ' ');
+          marker.bindPopup(`<b>${place.name}</b><br/>Tipo: ${tipoTraduzido}<br/><button onclick="combinarRole(${place.id})">Combinar rolê</button>`);
+        });
+      }
+
+      // --------- Funções Auxiliares ---------
+      function atualizarCoordsLabel(texto) { coordsDiv.textContent = texto; }
+      function combinarRole(placeId) { alert("Combinar rolê no lugar ID " + placeId + " (futuro: abrir fluxo de grupo/votação)"); }
+
+      function carregarPosicaoPadrao(motivo) {
+        console.warn(motivo);
+        map.setView([defaultLat, defaultLon], 12);
+        setSearchMarker(defaultLat, defaultLon, "Local padrão: Centro do Rio");
+      }
+
+      // --------- Função Principal de Inicialização ---------
+      async function inicializarMapa() {
+        categoryFilterDiv.innerHTML = '<span class="loader">Mova o pino para buscar...</span>';
+        if (!navigator.geolocation) {
+          carregarPosicaoPadrao("Geolocalização não suportada no navegador.");
+          return;
+        }
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const userLat = pos.coords.latitude;
+            const userLon = pos.coords.longitude;
+            userActualLocation = { lat: userLat, lng: userLon };
+            map.setView([userLat, userLon], 14);
+            if (locationMarker) locationMarker.remove();
+            locationMarker = L.marker([userLat, userLon], { icon: blueCircleIcon, zIndexOffset: -100 }).addTo(map);
+            setSearchMarker(userLat, userLon, "Buscando a partir da sua localização");
+          },
+          (err) => {
+            atualizarCoordsLabel("Não foi possível obter sua localização.");
+            carregarPosicaoPadrao(`Erro ao obter localização: ${err.message}`);
+          },
+          { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
         );
       }
 
-      function inicializarMapa() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              const userLat = pos.coords.latitude;
-              const userLon = pos.coords.longitude;
-              console.log("Localização do usuário:", userLat, userLon);
+      inicializarMapa();
 
-              map.setView([userLat, userLon], 13);
+      // --------- Overlay de CHAT (lista de amigos + conversa) ---------
+      const chatOverlay = document.getElementById("chat-overlay");
+      const chatAppContainer = document.getElementById("chat-app-container");
+      const chatCloseBtn = document.getElementById("chat-close-btn");
+      const contactSearchInput = document.getElementById("contact-search");
+      const contactListEl = document.getElementById("contact-list");
+      const chatHeaderTitleEl = document.getElementById("chat-header-title");
+      const chatHeaderSubtitleEl = document.getElementById(
+        "chat-header-subtitle"
+      );
+      const messagesContainerEl = document.getElementById("messages-container");
+      const chatInputEl = document.getElementById("chat-input");
+      const chatSendButtonEl = document.getElementById("chat-send-button");
 
-              setUserMarker(userLat, userLon, "Você está aqui");
+      // mock inicial de amigos (depois pode vir do backend)
+      const contacts = [
+        { id: "joao", nome: "João Silva" },
+        { id: "maria", nome: "Maria Oliveira" },
+        { id: "admin", nome: "Administrador" },
+      ];
 
-              carregarPlaces(userLat, userLon, defaultRadius);
-            },
-            (err) => {
-              console.warn(
-                "Não foi possível obter localização do usuário:",
-                err.message
-              );
-              map.setView([defaultLat, defaultLon], 12);
+      // estado de mensagens por contato (mock, só em memória)
+      const chatState = {
+        joao: [
+          { from: "other", text: "Olá! Tudo bem?" },
+          { from: "me", text: "Tudo ótimo! E com você?" },
+          { from: "other", text: "Vamos marcar um rolê hoje?" },
+        ],
+        maria: [
+          { from: "other", text: "Oi! Vi um bar novo em Copa." },
+          { from: "me", text: "Sério? Bora testar no fim de semana!" },
+        ],
+        admin: [
+          { from: "other", text: "Bem-vindo ao JaVai 👋" },
+          {
+            from: "other",
+            text: "Use este chat para combinar rolês com seus amigos.",
+          },
+        ],
+      };
 
-              setUserMarker(
-                defaultLat,
-                defaultLon,
-                "Local padrão: Centro do Rio"
-              );
+      let currentContactId = null;
 
-              carregarPlaces(defaultLat, defaultLon, defaultRadius);
-            },
-            {
-              enableHighAccuracy: true,
-              timeout: 5000,
-              maximumAge: 0,
-            }
-          );
-        } else {
-          console.warn("Geolocalização não suportada no navegador");
-          setUserMarker(defaultLat, defaultLon, "Local padrão: Centro do Rio");
-          carregarPlaces(defaultLat, defaultLon, defaultRadius);
+      function abrirChat() {
+        chatOverlay.style.display = "flex";
+        // se ainda não tiver contato selecionado, escolhe o primeiro
+        if (!currentContactId && contacts.length > 0) {
+          selecionarContato(contacts[0].id);
         }
+        chatInputEl.focus();
       }
 
-      inicializarMapa();
+      function fecharChat() {
+        chatOverlay.style.display = "none";
+      }
+
+      // fechar ao clicar no X
+      chatCloseBtn.addEventListener("click", () => {
+        fecharChat();
+      });
+
+      // fechar clicando fora do card
+      chatOverlay.addEventListener("click", (e) => {
+        if (e.target === chatOverlay) {
+          fecharChat();
+        }
+      });
+
+      function renderContactList(filterText = "") {
+        contactListEl.innerHTML = "";
+        const term = filterText.trim().toLowerCase();
+
+        contacts
+          .filter((c) => !term || c.nome.toLowerCase().includes(term))
+          .forEach((contact) => {
+            const li = document.createElement("li");
+            li.className = "contact-item";
+            li.dataset.contactId = contact.id;
+
+            if (contact.id === currentContactId) {
+              li.classList.add("active");
+            }
+
+            const avatar = document.createElement("div");
+            avatar.className = "contact-avatar";
+            avatar.textContent = contact.nome.charAt(0).toUpperCase();
+
+            const spanName = document.createElement("span");
+            spanName.textContent = contact.nome;
+
+            li.appendChild(avatar);
+            li.appendChild(spanName);
+
+            li.addEventListener("click", () => {
+              selecionarContato(contact.id);
+            });
+
+            contactListEl.appendChild(li);
+          });
+      }
+
+      function renderMessages() {
+        messagesContainerEl.innerHTML = "";
+
+        if (!currentContactId) {
+          chatHeaderTitleEl.textContent = "Selecione um amigo";
+          chatHeaderSubtitleEl.textContent = "A conversa aparece aqui";
+          return;
+        }
+
+        const contact = contacts.find((c) => c.id === currentContactId);
+        const msgs = chatState[currentContactId] || [];
+
+        chatHeaderTitleEl.textContent = contact ? contact.nome : "Chat";
+        chatHeaderSubtitleEl.textContent = "Converse sobre o próximo rolê";
+
+        msgs.forEach((msg) => {
+          const row = document.createElement("div");
+          row.className = "message-row " + (msg.from === "me" ? "me" : "other");
+
+          const bubble = document.createElement("div");
+          bubble.className = "message-bubble";
+          bubble.textContent = msg.text;
+
+          // meta simples
+          const meta = document.createElement("span");
+          meta.className = "message-meta";
+          meta.textContent = msg.from === "me" ? "Você • agora" : "";
+
+          bubble.appendChild(meta);
+          row.appendChild(bubble);
+          messagesContainerEl.appendChild(row);
+        });
+
+        messagesContainerEl.scrollTop = messagesContainerEl.scrollHeight;
+      }
+
+      function selecionarContato(contactId) {
+        currentContactId = contactId;
+        if (!chatState[currentContactId]) {
+          chatState[currentContactId] = [];
+        }
+        renderContactList(contactSearchInput.value);
+        renderMessages();
+      }
+
+      function enviarMensagemAtual() {
+        const text = chatInputEl.value.trim();
+        if (!text || !currentContactId) return;
+
+        chatState[currentContactId].push({
+          from: "me",
+          text,
+        });
+
+        chatInputEl.value = "";
+        renderMessages();
+      }
+
+      chatSendButtonEl.addEventListener("click", enviarMensagemAtual);
+
+      chatInputEl.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          enviarMensagemAtual();
+        }
+      });
+
+      contactSearchInput.addEventListener("input", (e) => {
+        renderContactList(e.target.value);
+      });
+
+      // inicializa lista (sem abrir overlay ainda)
+      renderContactList();
+
+      // --------- Tabs (3: conta, explorar, chat) ---------
+      const tabs = document.querySelectorAll(".bottom-nav .tab");
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          const name = tab.dataset.tab;
+
+          if (name === "explorar") {
+            fecharChat();
+            // se existir painel de conta, fechamos também
+            if (typeof fecharPainelConta === "function") {
+              fecharPainelConta();
+            }
+          } else if (name === "conta") {
+            fecharChat();
+            // só chama se a função existir (manter conta "como está")
+            if (typeof abrirPainelConta === "function") {
+              abrirPainelConta();
+            } else {
+              alert(
+                'Aba "Conta" ainda não implementada neste HTML (você pode ligar aqui com o painel de conta que já criamos).'
+              );
+            }
+          } else if (name === "chat") {
+            // fecha painel de conta se existir
+            if (typeof fecharPainelConta === "function") {
+              fecharPainelConta();
+            }
+            abrirChat();
+          }
+        });
+      });
     </script>
   </body>
 </html>

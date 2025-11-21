@@ -1,0 +1,66 @@
+// Dicionário de tradução para as categorias de amenities do OpenStreetMap
+// Chave: valor da tag 'amenity' em inglês
+// Valor: tradução para o português
+
+const traducoes = {
+  // Mais comuns
+  'parking': 'Estacionamento',
+  'bench': 'Assento',
+  'place_of_worship': 'Templo Religioso',
+  'restaurant': 'Restaurante',
+  'school': 'Escola',
+  'waste_basket': 'Lixeira',
+  'bicycle_parking': 'Bicicletário',
+  'fast_food': 'Fast Food',
+  'shelter': 'Abrigo',
+  'cafe': 'Café',
+  'fuel': 'Posto de Gasolina',
+  'recycling': 'Reciclagem',
+  'toilets': 'Banheiros',
+  'pharmacy': 'Farmácia',
+  'bank': 'Banco',
+  'post_box': 'Caixa de Correio',
+  'drinking_water': 'Água Potável',
+  'vending_machine': 'Máquina de Vendas',
+  'bar': 'Bar',
+  'hospital': 'Hospital',
+  'post_office': 'Correios',
+  'clinic': 'Clínica',
+  'community_centre': 'Centro Comunitário',
+  'doctors': 'Consultório Médico',
+  'pub': 'Pub',
+  'fountain': 'Fonte',
+  'charging_station': 'Estação de Carregamento',
+  'townhall': 'Prefeitura',
+  'social_facility': 'Serviço Social',
+  'grave_yard': 'Cemitério',
+  'police': 'Polícia',
+  'dentist': 'Dentista',
+  'fire_station': 'Corpo de Bombeiros',
+  
+  // Outros comuns e úteis
+  'car_wash': 'Lava-Jato',
+  'library': 'Biblioteca',
+  'marketplace': 'Mercado',
+  'bicycle_rental': 'Aluguel de Bicicletas',
+  'parcel_locker': 'Armário de Encomendas',
+  'telephone': 'Telefone Público',
+  'childcare': 'Creche',
+  'college': 'Faculdade',
+  'bus_station': 'Rodoviária',
+  'veterinary': 'Veterinário',
+  'ice_cream': 'Sorveteria',
+  'cinema': 'Cinema',
+  'theatre': 'Teatro',
+  'nightclub': 'Boate',
+  'university': 'Universidade',
+  'atm': 'Caixa Eletrônico',
+  'taxi': 'Ponto de Táxi',
+
+  // Menos comuns mas podem aparecer
+  'kindergarten': 'Jardim de Infância',
+  'parking_space': 'Vaga de Estacionamento',
+  'hunting_stand': 'Posto de Caça',
+  'waste_disposal': 'Descarte de Lixo',
+  'parking_entrance': 'Entrada de Estacionamento'
+};

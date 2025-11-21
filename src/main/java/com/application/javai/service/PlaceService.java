@@ -16,7 +16,8 @@ public class PlaceService {
     }
 
     public List<PlaceDTO> buscarPlaces(double lat, double lon, int radiusMeters) {
-        String amenityRegex = "bar|restaurant|cafe|pub|fast_food";
+        // Regex genérico para buscar qualquer coisa que tenha a tag "amenity"
+        String amenityRegex = "."; 
         List<PlaceDTO> fromOsm = osmService.buscarLugares(lat, lon, radiusMeters, amenityRegex);
 
         if (fromOsm.isEmpty()) {
