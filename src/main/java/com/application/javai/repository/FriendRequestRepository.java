@@ -39,4 +39,14 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest, Lo
     // Pedidos pendentes enviados por um usuário
     List<FriendRequest> findByRequesterAndStatusOrderByCreatedAtDesc(User requester,
                                                                      FriendRequestStatus status);
+
+    @Query("""
+        select fr
+        from FriendRequest fr
+        where fr.receiver.id = :requestedId
+          and fr.status = :status
+        order by fr.createdAt desc
+        """)
+    List<FriendRequest> findByRequestedIdAndStatus(@Param("requestedId") Long requestedId,
+                                                   @Param("status") FriendRequestStatus status);
 }

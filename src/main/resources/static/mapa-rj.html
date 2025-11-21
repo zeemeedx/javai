@@ -429,6 +429,20 @@
         background: rgba(15, 23, 42, 0.85);
       }
 
+      .chip-action {
+        cursor: pointer;
+        padding: 6px 14px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(248, 113, 113, 0.4);
+        color: #fecaca;
+        background: rgba(127, 29, 29, 0.2);
+        transition: background 0.2s ease;
+      }
+
+      .chip-action:hover {
+        background: rgba(153, 27, 27, 0.35);
+      }
+
       .account-sections {
         margin-top: 6px;
         position: relative;
@@ -441,6 +455,12 @@
         border-radius: 12px;
         background: rgba(15, 23, 42, 0.92);
         border: 1px solid rgba(31, 41, 55, 0.9);
+      }
+
+      .account-section.account-logout {
+        display: flex;
+        justify-content: center;
+        margin-top: 16px;
       }
 
       .account-section h4 {
@@ -1130,6 +1150,12 @@
             </div>
           </div>
         </div>
+
+        <div class="account-section account-logout">
+          <button id="logout-button" type="button" class="chip chip-action">
+            Sair da conta
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1226,6 +1252,7 @@
       const nameEditInput = document.getElementById("name-edit-input");
       const nameSaveBtn = document.getElementById("name-save-btn");
       const nameCancelBtn = document.getElementById("name-cancel-btn");
+      const logoutButton = document.getElementById("logout-button");
 
       let avatarCustomizado = false;
 
@@ -1383,6 +1410,30 @@
           fecharPainelConta();
         }
       });
+
+      if (logoutButton) {
+        logoutButton.addEventListener("click", async () => {
+          logoutButton.disabled = true;
+          try {
+            const resp = await fetch("/api/auth/logout", {
+              method: "POST",
+              headers: {
+                "X-Requested-With": "XMLHttpRequest",
+              },
+            });
+            if (resp.ok) {
+              window.location.href = "/";
+            } else {
+              alert("Não foi possível sair. Tente novamente.");
+            }
+          } catch (err) {
+            console.error("Erro ao fazer logout", err);
+            alert("Erro de rede ao sair da conta.");
+          } finally {
+            logoutButton.disabled = false;
+          }
+        });
+      }
 
       // ---- Edição de nome ----
       editNameBtn.addEventListener("click", () => {
