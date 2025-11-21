@@ -146,6 +146,123 @@
         #category-filter { font-size: 0.75rem; padding: 6px 8px; }
       }
 
+      /* -------- Overlay + Card da Conta -------- */
+
+      .account-overlay {
+        position: fixed;
+        inset: 0;
+        /* fundo escuro porém translúcido, deixando o mapa aparecer atrás */
+        background: rgba(3, 7, 18, 0.45);
+        backdrop-filter: blur(3px);
+        display: none; /* controlado via JS */
+        align-items: center;
+        justify-content: center;
+        z-index: 2000;
+        padding: 16px;
+      }
+
+      .account-card {
+        width: 100%;
+        max-width: 420px;
+        background: radial-gradient(
+            circle at top right,
+            rgba(59, 130, 246, 0.16),
+            transparent 55%
+          ),
+          radial-gradient(
+            circle at bottom left,
+            rgba(56, 189, 248, 0.12),
+            transparent 60%
+          ),
+          #020617;
+        border-radius: 20px;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        box-shadow: 0 28px 60px rgba(15, 23, 42, 0.9),
+          0 0 0 1px rgba(15, 23, 42, 0.8);
+        padding: 18px 18px 14px;
+        color: #e5e7eb;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .account-card::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background: radial-gradient(
+          circle at 0 0,
+          rgba(96, 165, 250, 0.18),
+          transparent 55%
+        );
+        opacity: 0.7;
+        pointer-events: none;
+        mix-blend-mode: screen;
+      }
+
+      .account-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .account-card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        letter-spacing: 0.02em;
+      }
+
+      .account-card-header span.sub {
+        display: block;
+        font-size: 0.76rem;
+        color: #9ca3af;
+        margin-top: 2px;
+      }
+
+      .account-panel-close {
+        border: none;
+        background: rgba(15, 23, 42, 0.8);
+        color: #9ca3af;
+        cursor: pointer;
+        font-size: 1.1rem;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .account-panel-close:hover {
+        background: rgba(248, 113, 113, 0.12);
+        color: #fecaca;
+      }
+
+      .account-profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+        position: relative;
+        z-index: 1;
+      }
+      .name-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .name-row .name {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .edit-icon {
+        border: none;
+        background: transparent;
+        color: #9ca3af;
       /* Botão customizado para o Leaflet */
       .leaflet-control-custom {
         background-color: white;
@@ -158,8 +275,182 @@
         line-height: 30px;
         font-size: 1.2rem;
         cursor: pointer;
+        font-size: 0.85rem;
+        padding: 2px;
+        border-radius: 999px;
       }
 
+      .edit-icon:hover {
+        background: rgba(148, 163, 184, 0.15);
+        color: #e5e7eb;
+      }
+
+      .name-edit {
+        margin-top: 6px;
+        display: flex;
+        gap: 6px;
+      }
+
+      .name-edit input {
+        flex: 1;
+        padding: 4px 6px;
+        border-radius: 8px;
+        border: 1px solid #4b5563;
+        background: #020617;
+        color: #e5e7eb;
+        font-size: 0.85rem;
+      }
+
+      .name-edit input:focus {
+        outline: none;
+        border-color: #3b82f6;
+      }
+
+      .name-edit button {
+        padding: 4px 8px;
+        border-radius: 999px;
+        border: none;
+        font-size: 0.78rem;
+        cursor: pointer;
+      }
+
+      #name-save-btn {
+        background: #3b82f6;
+        color: #e5e7eb;
+      }
+
+      #name-save-btn:hover {
+        background: #2563eb;
+      }
+
+      #name-cancel-btn {
+        background: #111827;
+        color: #e5e7eb;
+      }
+
+      #name-cancel-btn:hover {
+        background: #1f2937;
+      }
+
+      /* utilitária pra esconder blocos */
+      .hidden {
+        display: none;
+      }
+
+      .avatar-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* gradiente padrão quando não tem foto */
+        background: radial-gradient(circle at 30% 20%, #38bdf8, #1d4ed8);
+        color: #e5e7eb;
+        font-weight: 700;
+        font-size: 1.4rem;
+        box-shadow: 0 0 0 2px rgba(15, 23, 42, 0.9);
+        cursor: pointer; /* 👈 indica que é clicável */
+        overflow: hidden; /* corta bordas da imagem */
+        background-size: cover; /* imagem cobre o círculo */
+        background-position: center; /* centraliza a imagem */
+      }
+
+      .profile-main {
+        flex: 1;
+      }
+
+      .profile-main .name {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .profile-main .email {
+        font-size: 0.8rem;
+        color: #cbd5f5;
+        word-break: break-all;
+      }
+
+      .profile-tags {
+        margin-top: 6px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .chip {
+        border-radius: 999px;
+        padding: 2px 8px;
+        font-size: 0.7rem;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        color: #9ca3af;
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      .account-sections {
+        margin-top: 6px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .account-section {
+        margin-bottom: 10px;
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(31, 41, 55, 0.9);
+      }
+
+      .account-section h4 {
+        margin: 0 0 6px;
+        font-size: 0.86rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        color: #9ca3af;
+      }
+
+      .list-compact {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        font-size: 0.8rem;
+      }
+
+      .list-compact li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid rgba(31, 41, 55, 0.7);
+      }
+
+      .list-compact li:last-child {
+        border-bottom: none;
+      }
+
+      .list-compact span.label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .pill {
+        font-size: 0.68rem;
+        padding: 2px 6px;
+        border-radius: 999px;
+        background: rgba(37, 99, 235, 0.18);
+        color: #bfdbfe;
+      }
+
+      .pill-secondary {
+        background: rgba(55, 65, 81, 0.8);
+        color: #e5e7eb;
+      }
+
+      @media (max-width: 480px) {
+        .account-card {
+          padding: 16px 14px 12px;
+        }
       /* Ícone de círculo azul para a localização real do usuário */
       .blue-circle-icon div {
         width: 16px;
@@ -459,7 +750,7 @@
   </head>
   <body>
     <header class="app-header">
-      <div class="title">JaVai</div>
+      <div class="title">Rolês</div>
       <div class="user">Online</div>
     </header>
 
@@ -468,6 +759,91 @@
 
     <div id="map"></div>
 
+    <!-- Overlay da Conta -->
+    <div id="account-panel" class="account-overlay" style="display: none">
+      <div class="account-card" id="account-card">
+        <div class="account-card-header">
+          <div>
+            <h3>Sua conta</h3>
+            <span class="sub">Configurações e histórico do seu rolê</span>
+          </div>
+          <button
+            class="account-panel-close"
+            id="close-account-panel"
+            aria-label="Fechar"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="account-profile">
+          <div
+            class="avatar-circle"
+            id="account-avatar"
+            title="Clique para alterar sua foto"
+          >
+            ?
+          </div>
+
+          <!-- input de arquivo escondido -->
+          <input
+            type="file"
+            id="avatar-input"
+            accept="image/*"
+            style="display: none"
+          />
+
+          <div class="profile-main">
+            <div class="name-row">
+              <span class="name" id="account-name">Carregando...</span>
+              <button
+                type="button"
+                class="edit-icon"
+                id="edit-name-btn"
+                title="Editar nome"
+              >
+                ✏️
+              </button>
+            </div>
+
+            <!-- modo edição do nome -->
+            <div class="name-edit hidden" id="name-edit-container">
+              <input
+                type="text"
+                id="name-edit-input"
+                maxlength="60"
+                placeholder="Digite seu nome"
+              />
+              <button type="button" id="name-save-btn">Salvar</button>
+              <button type="button" id="name-cancel-btn">Cancelar</button>
+            </div>
+
+            <div class="email" id="account-email">—</div>
+            <div class="profile-tags">
+              <span class="chip">Usuário ativo</span>
+              <span class="chip">Explorador de rolês</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="account-sections">
+          <div class="account-section">
+            <h4>Histórico de rolês</h4>
+            <ul class="list-compact" id="roles-list">
+              <!-- preenchido via JS -->
+            </ul>
+          </div>
+
+          <div class="account-section">
+            <h4>Lista de amigos</h4>
+            <ul class="list-compact" id="friends-list">
+              <!-- preenchido via JS -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Overlay do CHAT -->
     <div id="chat-overlay" class="overlay-chat">
       <div class="chat-app-container" id="chat-app-container">
@@ -546,6 +922,276 @@
     <script src="js/traducoes.js" defer></script>
 
     <script>
+      // -------- Overlay da Conta / UI --------
+
+      const accountPanel = document.getElementById("account-panel");
+      const accountCard = document.getElementById("account-card");
+      const closeAccountBtn = document.getElementById("close-account-panel");
+      const accountNameEl = document.getElementById("account-name");
+      const accountEmailEl = document.getElementById("account-email");
+      const accountAvatarEl = document.getElementById("account-avatar");
+      const avatarInputEl = document.getElementById("avatar-input");
+      const rolesListEl = document.getElementById("roles-list");
+      const friendsListEl = document.getElementById("friends-list");
+      const editNameBtn = document.getElementById("edit-name-btn");
+      const nameEditContainer = document.getElementById("name-edit-container");
+      const nameEditInput = document.getElementById("name-edit-input");
+      const nameSaveBtn = document.getElementById("name-save-btn");
+      const nameCancelBtn = document.getElementById("name-cancel-btn");
+
+      let avatarCustomizado = false;
+
+      const mockRoles = [
+        {
+          nome: "Bar da Lapa",
+          data: "05/11",
+          status: "Concluído",
+        },
+        {
+          nome: "Pedal na Lagoa",
+          data: "28/10",
+          status: "Confirmado",
+        },
+        {
+          nome: "Praia em Ipanema",
+          data: "20/10",
+          status: "Finalizado",
+        },
+      ];
+
+      const mockFriends = [
+        { nome: "Ana", tag: "@ana_rolês" },
+        { nome: "Bruno", tag: "@bruno.bike" },
+        { nome: "Carla", tag: "@carla.sunset" },
+      ];
+
+      function initialsFromName(name) {
+        if (!name) return "?";
+        const parts = name.trim().split(/\s+/);
+        if (parts.length === 1) {
+          return parts[0].charAt(0).toUpperCase();
+        }
+        return (
+          parts[0].charAt(0).toUpperCase() +
+          parts[parts.length - 1].charAt(0).toUpperCase()
+        );
+      }
+      // clique no avatar abre seletor de arquivo
+      accountAvatarEl.addEventListener("click", () => {
+        avatarInputEl.click();
+      });
+
+      // quando o usuário escolhe uma imagem
+      avatarInputEl.addEventListener("change", () => {
+        const file = avatarInputEl.files[0];
+        if (!file) return;
+
+        // opcional: limitar tamanho/tipo
+        if (!file.type.startsWith("image/")) {
+          alert("Por favor, selecione uma imagem válida.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          accountAvatarEl.style.backgroundImage = `url('${dataUrl}')`;
+          accountAvatarEl.textContent = "";
+          avatarCustomizado = true; // 👈 marca que agora é foto, não iniciais
+        };
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append("avatar", file);
+
+        fetch("/api/me/avatar", {
+          method: "POST",
+          body: formData,
+        })
+          .then((resp) => {
+            if (!resp.ok) {
+              console.error("Falha ao enviar avatar:", resp.status);
+              // opcional: mostrar toast msg
+            }
+          })
+          .catch((err) => {
+            console.error("Erro na requisição de avatar:", err);
+          });
+      });
+
+      function renderMockRoles() {
+        rolesListEl.innerHTML = "";
+        mockRoles.forEach((role) => {
+          const li = document.createElement("li");
+          const left = document.createElement("span");
+          left.className = "label";
+          left.textContent = role.nome;
+
+          const right = document.createElement("span");
+          right.className = "pill";
+          right.textContent = `${role.data} • ${role.status}`;
+
+          li.appendChild(left);
+          li.appendChild(right);
+          rolesListEl.appendChild(li);
+        });
+      }
+
+      function renderMockFriends() {
+        friendsListEl.innerHTML = "";
+        mockFriends.forEach((f) => {
+          const li = document.createElement("li");
+          const left = document.createElement("span");
+          left.className = "label";
+          left.textContent = f.nome;
+
+          const right = document.createElement("span");
+          right.className = "pill pill-secondary";
+          right.textContent = f.tag;
+
+          li.appendChild(left);
+          li.appendChild(right);
+          friendsListEl.appendChild(li);
+        });
+      }
+
+      async function abrirPainelConta() {
+        accountPanel.style.display = "flex";
+
+        accountNameEl.textContent = "Carregando...";
+        accountEmailEl.textContent = "—";
+
+        // se ainda não foi customizado, mostra "?"
+        if (!avatarCustomizado) {
+          accountAvatarEl.textContent = "?";
+          accountAvatarEl.style.backgroundImage = ""; // gradiente padrão do CSS
+        }
+
+        try {
+          const resp = await fetch("/api/me");
+          if (!resp.ok) {
+            accountNameEl.textContent = "Não foi possível carregar seus dados";
+            accountEmailEl.textContent = `Status: ${resp.status}`;
+            return;
+          }
+
+          const user = await resp.json();
+          accountNameEl.textContent = user.nome ?? "Usuário sem nome";
+          accountEmailEl.textContent = user.email ?? "—";
+
+          // 👉 Só coloca iniciais se NÃO tiver foto customizada
+          if (!avatarCustomizado) {
+            accountAvatarEl.textContent = initialsFromName(
+              user.nome ?? user.email
+            );
+            accountAvatarEl.style.backgroundImage = "";
+          } else {
+            // já tem foto, garante que o texto fique vazio
+            accountAvatarEl.textContent = "";
+          }
+        } catch (e) {
+          console.error("Erro ao carregar /api/me:", e);
+          accountNameEl.textContent = "Erro ao carregar suas informações";
+          accountEmailEl.textContent = "Tente novamente mais tarde.";
+        }
+
+        renderMockRoles();
+        renderMockFriends();
+      }
+
+      function fecharPainelConta() {
+        accountPanel.style.display = "none";
+      }
+
+      closeAccountBtn.addEventListener("click", () => {
+        fecharPainelConta();
+      });
+
+      // fecha ao clicar fora do card
+      accountPanel.addEventListener("click", (e) => {
+        if (e.target === accountPanel) {
+          fecharPainelConta();
+        }
+      });
+
+      // -------- Tabs da barra inferior --------
+
+      const tabs = document.querySelectorAll(".bottom-nav .tab");
+
+      tabs.forEach((tab) => {
+        tab.addEventListener("click", () => {
+          tabs.forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+
+          const name = tab.dataset.tab;
+
+          if (name === "conta") {
+            abrirPainelConta();
+          } else {
+            fecharPainelConta();
+
+            if (name !== "explorar") {
+              alert(
+                'Aba "' +
+                  name +
+                  '" ainda não implementada. Aqui depois entra a tela de ' +
+                  name +
+                  "."
+              );
+            }
+          }
+        });
+      });
+
+      // ---- Edição de nome ----
+      editNameBtn.addEventListener("click", () => {
+        const currentName = accountNameEl.textContent.trim();
+        nameEditInput.value =
+          currentName === "Carregando..." || currentName === ""
+            ? ""
+            : currentName;
+        nameEditContainer.classList.remove("hidden");
+        nameEditInput.focus();
+        nameEditInput.select();
+      });
+
+      nameCancelBtn.addEventListener("click", () => {
+        nameEditContainer.classList.add("hidden");
+      });
+
+      nameSaveBtn.addEventListener("click", async () => {
+        const novoNome = nameEditInput.value.trim();
+        if (!novoNome) {
+          alert("O nome não pode ser vazio.");
+          return;
+        }
+
+        try {
+          const resp = await fetch("/api/me/name", {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ nome: novoNome }),
+          });
+
+          if (!resp.ok) {
+            console.error("Erro ao atualizar nome:", resp.status);
+            alert("Não foi possível atualizar seu nome. Tente novamente.");
+            return;
+          }
+
+          const data = await resp.json();
+          accountNameEl.textContent = data.nome ?? novoNome;
+          nameEditContainer.classList.add("hidden");
+        } catch (e) {
+          console.error("Erro na requisição de update de nome:", e);
+          alert("Ocorreu um erro ao atualizar seu nome.");
+        }
+      });
+
+      // -------- Mapa + OSM / Overpass --------
+
       // --------- Elementos da UI ---------
       const coordsDiv = document.getElementById("coords");
       const categoryFilterDiv = document.getElementById("category-filter");
@@ -576,8 +1222,14 @@
       L.control.zoom({ position: "topright" }).addTo(map);
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap contributors" }).addTo(map);
       const markersLayer = L.layerGroup().addTo(map);
+      const coordsDiv = document.getElementById("coords");
 
-      // --------- Ícones e Marcadores ---------
+      function atualizarCoordsLabel(lat, lon, origem) {
+        coordsDiv.textContent = `Localização (${origem}): ${lat.toFixed(
+          5
+        )}, ${lon.toFixed(5)}`;
+      }
+
       const userIcon = L.icon({
         iconUrl:
           "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png",
