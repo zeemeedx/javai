@@ -1780,7 +1780,7 @@
               <div class="popup-type">${tipoTraduzido}</div>
               <div class="popup-actions">
                   <button class="popup-btn maps" onclick="abrirGoogleMaps('${safeName}', ${place.lat}, ${place.lon})">🗺️ Maps</button>
-                  <button class="popup-btn favorite" onclick="favoritarLugar(${place.id})">⭐ Salvar</button>
+                  <button class="popup-btn favorite" onclick="favoritarLugar(${place.id})">⭐ Favoritar</button>
               </div>
           `;
 
@@ -1802,10 +1802,45 @@
         window.open(url, "_blank");
       }
 
-      function favoritarLugar(placeId) {
-        alert(
-          `Funcionalidade "Favoritar" para o lugar ID ${placeId} será implementada em breve!`
-        );
+      async function favoritarLugar(placeId) {
+        const place = allFoundPlaces.find((p) => p.id === placeId);
+        if (!place) {
+          alert("Lugar não encontrado.");
+          return;
+        }
+
+        try {
+          const resp = await fetch("/api/favorites", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              externalId: String(place.id),
+              name: place.name ?? "(sem nome)",
+              type: place.type ?? "unknown",
+              lat: place.lat,
+              lon: place.lon,
+              source: "OSM",
+            }),
+          });
+
+          if (resp.status === 401 || resp.status === 403) {
+            alert("Sessão expirada. Faça login novamente.");
+            window.location.href = "/";
+            return;
+          }
+
+          if (resp.ok) {
+            alert("Lugar favoritado com sucesso!");
+          } else {
+            const text = await resp.text();
+            alert(text || "Não foi possível favoritar o lugar.");
+          }
+        } catch (err) {
+          console.error("Erro ao favoritar lugar:", err);
+          alert("Erro ao favoritar o lugar.");
+        }
       }
 
       function atualizarCoordsLabel(texto) {
