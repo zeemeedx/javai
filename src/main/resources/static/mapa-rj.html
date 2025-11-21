@@ -68,19 +68,47 @@
         max-width: 300px;
       }
 
-      /* Painel de Filtro de Categorias */
-      #category-filter {
+
+      /* Painel de Controles (Raio e Categorias) */
+      #controls-panel {
         position: absolute;
         top: 44px;
         left: 8px;
         background: var(--panel-bg);
         padding: 8px 12px;
         border-radius: 8px;
-        font-size: 0.8rem;
         z-index: 1000;
-        max-height: 50vh;
         max-width: 200px;
+      }
+      
+      #radius-control {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #334155;
+      }
+
+      #radius-control label {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      #radius-control input[type="range"] {
+        width: 100%;
+        cursor: pointer;
+      }
+
+      /* Painel de Filtro de Categorias */
+      #category-filter {
+        /* position, background, padding, border-radius movidos para #controls-panel */
+        font-size: 0.8rem;
+        max-height: 40vh; /* ajustado */
         overflow-y: auto;
+      }
+      /* Esconder a barra de rolagem no Chrome/Safari, mas manter funcionalidade */
+      #category-filter::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
       }
       #category-filter h4 {
         margin: 0 0 8px 0;
@@ -756,7 +784,13 @@
       <div class="user">Online</div>
     </header>
 
-    <div id="category-filter"></div>
+    <div id="controls-panel">
+      <div id="radius-control">
+        <label for="radius-slider">Raio: <span id="radius-value">1500m</span></label>
+        <input type="range" id="radius-slider" min="500" max="5000" step="100" value="1500">
+      </div>
+      <div id="category-filter"></div>
+    </div>
     <div id="coords">Localização: carregando...</div>
 
     <div id="map"></div>
@@ -1168,6 +1202,8 @@
       // --------- Elementos da UI ---------
       const coordsDiv = document.getElementById("coords");
       const categoryFilterDiv = document.getElementById("category-filter");
+      const radiusSlider = document.getElementById('radius-slider');
+      const radiusValue = document.getElementById('radius-value');
 
       // --------- Estado da Aplicação ---------
       let userActualLocation = null;
@@ -1175,7 +1211,7 @@
       let allFoundPlaces = [];
       const defaultLat = -22.9068;
       const defaultLon = -43.1729;
-      const defaultRadius = 1500;
+      let currentRadius = 1500; // Raio de busca em metros, agora dinâmico
       const defaultCheckedCategories = new Set([
         'place_of_worship', 'restaurant', 'fast_food', 'cafe', 'bar',
         'ice_cream', 'pub', 'cinema', 'theatre', 'nightclub', 'university'
@@ -1253,6 +1289,20 @@
         setSearchMarker(lat, lng, "Buscando a partir daqui");
       });
 
+      radiusSlider.addEventListener('input', () => {
+        currentRadius = parseInt(radiusSlider.value, 10);
+        radiusValue.textContent = `${currentRadius}m`;
+        
+        if (searchRadiusCircle) {
+          searchRadiusCircle.setRadius(currentRadius);
+        }
+      });
+
+      radiusSlider.addEventListener('change', () => {
+        // A busca é chamada apenas quando o usuário solta o slider, para evitar muitas requisições
+        carregarPlaces();
+      });
+
       categoryFilterDiv.addEventListener('change', () => {
         aplicarFiltroEAtualizarMapa();
       });
@@ -1272,8 +1322,9 @@
         // Desenha ou move o círculo de raio
         if (searchRadiusCircle) {
           searchRadiusCircle.setLatLng([lat, lon]);
+          searchRadiusCircle.setRadius(currentRadius);
         } else {
-          searchRadiusCircle = L.circle([lat, lon], { ...radiusCircleOptions, radius: defaultRadius }).addTo(map);
+          searchRadiusCircle = L.circle([lat, lon], { ...radiusCircleOptions, radius: currentRadius }).addTo(map);
         }
 
         carregarPlaces();
@@ -1285,7 +1336,7 @@
           markersLayer.clearLayers();
         const { lat, lon } = currentSearchCoords;
         try {
-          const url = `/api/places?lat=${lat}&lon=${lon}&radius=${defaultRadius}`;
+          const url = `/api/places?lat=${lat}&lon=${lon}&radius=${currentRadius}`;
           const response = await fetch(url);
           if (!response.ok) {
             categoryFilterDiv.innerHTML = '<span class="loader">Erro na busca.</span>';
