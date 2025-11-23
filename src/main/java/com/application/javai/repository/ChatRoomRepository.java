@@ -33,4 +33,13 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     List<ChatRoom> findDirectRoomBetween(@Param("user1") User user1,
                                          @Param("user2") User user2,
                                          @Param("type") ChatRoomType type);
+
+    @Query("""
+        select cr from ChatRoom cr
+        join cr.participants p
+        where cr.type = 'GROUP'
+          and cr.admin = :admin
+          and p = :participant
+        """)
+    List<ChatRoom> findGroupRoomsWithAdminAndParticipant(@Param("admin") User admin, @Param("participant") User participant);
 }

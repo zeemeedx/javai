@@ -14,4 +14,6 @@ public interface RankingVoteRepository extends JpaRepository<RankingVote, Long> 
     Optional<RankingVote> findBySessionAndVoter(VotingSession session, User voter);
 
     List<RankingVote> findBySession(VotingSession session);
+
+    void deleteBySession(VotingSession session);
 }

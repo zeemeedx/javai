@@ -8,9 +8,17 @@ import com.application.javai.model.FriendRequest;
 import com.application.javai.model.FriendRequestStatus;
 import com.application.javai.model.Friendship;
 import com.application.javai.model.User;
+import com.application.javai.model.ChatRoom;
+import com.application.javai.model.ChatRoomType;
+import com.application.javai.model.VotingSession;
 import com.application.javai.repository.FriendRequestRepository;
 import com.application.javai.repository.FriendshipRepository;
 import com.application.javai.repository.UserRepository;
+import com.application.javai.repository.ChatRoomRepository;
+import com.application.javai.repository.VotingSessionRepository;
+import com.application.javai.repository.VotingOptionRepository;
+import com.application.javai.repository.RankingVoteRepository;
+import com.application.javai.repository.ChatMessageRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,13 +37,28 @@ public class FriendService {
     private final FriendRequestRepository friendRequestRepository;
     private final UserRepository userRepository;
     private final FriendshipRepository friendshipRepository;
+    private final ChatRoomRepository chatRoomRepository;
+    private final ChatMessageRepository chatMessageRepository;
+    private final VotingSessionRepository votingSessionRepository;
+    private final VotingOptionRepository votingOptionRepository;
+    private final RankingVoteRepository rankingVoteRepository;
 
     public FriendService(FriendRequestRepository friendRequestRepository,
                          UserRepository userRepository,
-                         FriendshipRepository friendshipRepository) {
+                         FriendshipRepository friendshipRepository,
+                         ChatRoomRepository chatRoomRepository,
+                         ChatMessageRepository chatMessageRepository,
+                         VotingSessionRepository votingSessionRepository,
+                         VotingOptionRepository votingOptionRepository,
+                         RankingVoteRepository rankingVoteRepository) {
         this.friendRequestRepository = friendRequestRepository;
         this.userRepository = userRepository;
         this.friendshipRepository = friendshipRepository;
+        this.chatRoomRepository = chatRoomRepository;
+        this.chatMessageRepository = chatMessageRepository;
+        this.votingSessionRepository = votingSessionRepository;
+        this.votingOptionRepository = votingOptionRepository;
+        this.rankingVoteRepository = rankingVoteRepository;
     }
 
     // ------------------ Visão geral (friends + pendentes) ------------------
@@ -231,11 +254,57 @@ public class FriendService {
             throw new IllegalArgumentException("Não é possível remover a si mesmo.");
         }
 
-        userRepository.findById(friendUserId)
+        User friend = userRepository.findById(friendUserId)
                 .orElseThrow(() -> new NoSuchElementException("Usuário amigo não encontrado."));
 
-        friendshipRepository.deleteByUserIdAndFriendId(currentUser.getId(), friendUserId);
-        friendshipRepository.deleteByUserIdAndFriendId(friendUserId, currentUser.getId());
+        // Step 1: Find and delete the direct chat room and all its dependent entities
+        chatRoomRepository.findDirectRoomBetween(currentUser, friend, ChatRoomType.DIRECT)
+                .stream()
+                .findFirst()
+                .ifPresent(room -> {
+                    // Find all voting sessions for this room
+                    List<VotingSession> sessions = votingSessionRepository.findByRoom(room);
+                    for (VotingSession session : sessions) {
+                        // Delete all votes and options for each session
+                        rankingVoteRepository.deleteBySession(session);
+                        votingOptionRepository.deleteBySession(session);
+                    }
+                    // Delete the sessions themselves
+                    if (!sessions.isEmpty()) {
+                        votingSessionRepository.deleteAll(sessions);
+                    }
+
+                    // Delete all chat messages for this room
+                    chatMessageRepository.deleteByRoom(room);
+
+                    // Finally, delete the room
+                    chatRoomRepository.delete(room);
+                });
+
+        // Step 2: Remove users from shared groups
+        // Remove friend from my groups
+        List<ChatRoom> myGroupsWithFriend = chatRoomRepository.findGroupRoomsWithAdminAndParticipant(currentUser, friend);
+        for (ChatRoom room : myGroupsWithFriend) {
+            room.getParticipants().remove(friend);
+            chatRoomRepository.save(room);
+        }
+
+        // Remove me from friend's groups
+        List<ChatRoom> friendGroupsWithMe = chatRoomRepository.findGroupRoomsWithAdminAndParticipant(friend, currentUser);
+        for (ChatRoom room : friendGroupsWithMe) {
+            room.getParticipants().remove(currentUser);
+            chatRoomRepository.save(room);
+        }
+
+        // Step 3: Delete friendships (both ways)
+        friendshipRepository.deleteByUserAndFriend(currentUser, friend);
+        friendshipRepository.deleteByUserAndFriend(friend, currentUser);
+
+        // Step 4: Delete any pending/rejected friend requests between them
+        List<FriendRequest> requests = friendRequestRepository.findAllBetweenUsers(currentUser, friend);
+        if (!requests.isEmpty()) {
+            friendRequestRepository.deleteAll(requests);
+        }
     }
 
     // ------------------ Helpers ------------------

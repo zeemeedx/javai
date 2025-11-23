@@ -22,8 +22,8 @@ public class VotingOption {
     @JoinColumn(name = "session_id")
     private VotingSession session;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "favorite_place_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "favorite_place_id", nullable = true)
     private FavoritePlace favoritePlace;
 
     @Column(nullable = false)

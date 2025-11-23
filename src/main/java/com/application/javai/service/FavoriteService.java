@@ -13,6 +13,8 @@ import com.application.javai.dto.FavoritePlaceDTO;
 import com.application.javai.model.ChatMessage;
 import com.application.javai.model.FavoritePlace;
 import com.application.javai.model.User;
+import com.application.javai.model.VotingOption;
+import com.application.javai.model.VotingStatus;
 import com.application.javai.repository.ChatMessageRepository;
 import com.application.javai.repository.FavoritePlaceRepository;
 import com.application.javai.repository.UserRepository;
@@ -77,12 +79,24 @@ public class FavoriteService {
         FavoritePlace favorite = favoritePlaceRepository.findByIdAndUser(favoriteId, user)
                 .orElseThrow(() -> new NoSuchElementException("Favorito não encontrado."));
 
-        // Check 1: Is it used in a voting session? If so, block deletion.
-        if (votingOptionRepository.existsByFavoritePlace(favorite)) {
-            throw new IllegalStateException("Este lugar não pode ser removido pois já foi usado em uma votação.");
+        List<VotingOption> votingOptions = votingOptionRepository.findByFavoritePlace(favorite);
+
+        // Check 1: Is it used in an ACTIVE voting session?
+        boolean isInOpenSession = votingOptions.stream()
+                .anyMatch(option -> option.getSession().getStatus() == VotingStatus.OPEN);
+        if (isInOpenSession) {
+            throw new IllegalStateException("Este lugar não pode ser removido pois está em uma votação ativa.");
+        }
+        
+        // Step 2: Nullify references in VotingOptions from CLOSED sessions
+        if (!votingOptions.isEmpty()) {
+            for (VotingOption option : votingOptions) {
+                option.setFavoritePlace(null);
+            }
+            votingOptionRepository.saveAll(votingOptions);
         }
 
-        // Step 2: Nullify references in ChatMessages
+        // Step 3: Nullify references in ChatMessages
         List<ChatMessage> messagesToUpdate = chatMessageRepository.findByFavoritePlace(favorite);
         if (!messagesToUpdate.isEmpty()) {
             for (ChatMessage message : messagesToUpdate) {
@@ -91,7 +105,7 @@ public class FavoriteService {
             chatMessageRepository.saveAll(messagesToUpdate);
         }
         
-        // Step 3: Delete the favorite place
+        // Step 4: Delete the favorite place
         favoritePlaceRepository.delete(favorite);
     }
 

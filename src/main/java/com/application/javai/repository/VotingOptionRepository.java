@@ -12,5 +12,9 @@ public interface VotingOptionRepository extends JpaRepository<VotingOption, Long
 
     List<VotingOption> findBySessionOrderByOrderIndexAsc(VotingSession session);
 
+    List<VotingOption> findByFavoritePlace(FavoritePlace favoritePlace);
+
     boolean existsByFavoritePlace(FavoritePlace favoritePlace);
+
+    void deleteBySession(VotingSession session);
 }

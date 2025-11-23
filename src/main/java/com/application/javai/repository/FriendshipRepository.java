@@ -9,5 +9,5 @@ public interface FriendshipRepository extends JpaRepository<Friendship, Long> {
 
     boolean existsByUserAndFriend(User user, User friend);
 
-    void deleteByUserIdAndFriendId(Long userId, Long friendId);
+    void deleteByUserAndFriend(User user, User friend);
 }

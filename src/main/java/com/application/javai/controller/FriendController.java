@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import com.application.javai.dto.FriendCandidateDTO;
 import com.application.javai.dto.FriendOverviewDTO;
@@ -42,6 +43,20 @@ public class FriendController {
         String email = userDetails.getUsername();
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado."));
+    }
+
+    @DeleteMapping("/{friendId}")
+    public ResponseEntity<?> removeFriend(@PathVariable Long friendId) {
+        try {
+            friendService.removerAmigo(friendId);
+            return ResponseEntity.noContent().build();
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (NoSuchElementException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     // GET /api/friends → overview (amigos + pendentes)

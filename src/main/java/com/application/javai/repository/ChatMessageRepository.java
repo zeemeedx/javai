@@ -13,4 +13,6 @@ public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> 
     List<ChatMessage> findByRoomOrderByCreatedAtAsc(ChatRoom room);
 
     List<ChatMessage> findByFavoritePlace(FavoritePlace favoritePlace);
+
+    void deleteByRoom(ChatRoom room);
 }

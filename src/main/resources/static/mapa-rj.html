@@ -648,6 +648,16 @@
         cursor: default;
       }
 
+      .friend-btn-danger {
+        background: rgba(220, 38, 38, 0.2);
+        color: #fca5a5;
+        border: 1px solid rgba(220, 38, 38, 0.5);
+      }
+      .friend-btn-danger:hover {
+        background: rgba(220, 38, 38, 0.4);
+        color: #fecaca;
+      }
+
       .toast-container {
         position: fixed;
         right: 18px;
@@ -851,6 +861,27 @@
 
       .contact-item.active {
         background: rgba(37, 99, 235, 0.18);
+      }
+
+      .contact-info {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* Para o ellipsis funcionar */
+      }
+      
+      .contact-name {
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      
+      .contact-subtitle {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       .contact-avatar {
@@ -1739,14 +1770,6 @@
         </div>
 
         <div class="account-sections">
-          <!-- Histórico de rolês (mantido) -->
-          <div class="account-section">
-            <h4>Histórico de rolês</h4>
-            <ul class="list-compact" id="roles-list">
-              <!-- preenchido via JS -->
-            </ul>
-          </div>
-
           <!-- 🔹 NOVA seção de amigos -->
           <div class="account-section" id="account-friends">
             <div class="friends-header">
@@ -1972,24 +1995,6 @@
 
       let avatarCustomizado = false;
 
-      const mockRoles = [
-        {
-          nome: "Bar da Lapa",
-          data: "05/11",
-          status: "Concluído",
-        },
-        {
-          nome: "Pedal na Lagoa",
-          data: "28/10",
-          status: "Confirmado",
-        },
-        {
-          nome: "Praia em Ipanema",
-          data: "20/10",
-          status: "Finalizado",
-        },
-      ];
-
       const mockFriends = [
         { nome: "Ana", tag: "@ana_rolês" },
         { nome: "Bruno", tag: "@bruno.bike" },
@@ -2050,24 +2055,6 @@
           });
       });
 
-      function renderMockRoles() {
-        rolesListEl.innerHTML = "";
-        mockRoles.forEach((role) => {
-          const li = document.createElement("li");
-          const left = document.createElement("span");
-          left.className = "label";
-          left.textContent = role.nome;
-
-          const right = document.createElement("span");
-          right.className = "pill";
-          right.textContent = `${role.data} • ${role.status}`;
-
-          li.appendChild(left);
-          li.appendChild(right);
-          rolesListEl.appendChild(li);
-        });
-      }
-
       async function abrirPainelConta() {
         accountPanel.style.display = "flex";
 
@@ -2108,7 +2095,6 @@
           accountEmailEl.textContent = "Tente novamente mais tarde.";
         }
 
-        renderMockRoles();
         loadFriendsOverview();
       }
 
@@ -2525,7 +2511,7 @@
       function abrirGoogleMaps(nome, lat, lon) {
         let query;
         if (nome && nome.trim() !== "(sem nome)") {
-          query = encodeURIComponent(`${nome} @${lat},${lon}`);
+          query = encodeURIComponent(`${nome},${lat},${lon}`);
         } else {
           query = encodeURIComponent(`${lat},${lon}`);
         }
@@ -2919,11 +2905,25 @@
             .join("");
           avatar.textContent = initials;
 
-          const spanName = document.createElement("span");
+          const info = document.createElement("div");
+          info.className = "contact-info";
+
+          const spanName = document.createElement("div");
+          spanName.className = "contact-name";
           spanName.textContent = room.displayName || room.name || "Chat";
+          info.appendChild(spanName);
+
+          if (room.type === 'GROUP' && Array.isArray(room.participants)) {
+            const subtitle = document.createElement("div");
+            subtitle.className = "contact-subtitle";
+            subtitle.textContent = room.participants
+                .map(p => p.nome.split(' ')[0]) // Pega o primeiro nome
+                .join(', ');
+            info.appendChild(subtitle);
+          }
 
           li.appendChild(avatar);
-          li.appendChild(spanName);
+          li.appendChild(info);
 
           li.addEventListener("click", () => {
             selecionarContato(room.id).catch((err) =>
@@ -3057,11 +3057,14 @@
         chatHeaderTitleEl.textContent = room
           ? room.displayName || room.name
           : "Chat";
-        chatHeaderSubtitleEl.textContent = room
-          ? room.type === "GROUP"
-            ? "Converse com seu grupo"
-            : "Converse sobre o próximo rolê"
-          : "";
+        
+        if (room && room.type === 'GROUP' && Array.isArray(room.participants)) {
+            chatHeaderSubtitleEl.textContent = room.participants
+                .map(p => p.nome.split(' ')[0])
+                .join(', ');
+        } else {
+            chatHeaderSubtitleEl.textContent = "Converse sobre o próximo rolê";
+        }
 
         if (!msgs.length) {
           const empty = document.createElement("p");
@@ -3959,8 +3962,13 @@
           const right = document.createElement("div");
           right.className = "friend-right";
           const btn = document.createElement("button");
-          btn.className = "friend-btn-disabled";
-          btn.textContent = "Amigo";
+          btn.className = "friend-btn-danger";
+          btn.textContent = "Remover";
+          btn.addEventListener('click', () => {
+            if (confirm(`Tem certeza que quer remover ${f.nome} da sua lista de amigos? A conversa entre vocês será apagada.`)) {
+                removerAmigo(f.id);
+            }
+          });
 
           right.appendChild(btn);
 
@@ -4097,6 +4105,28 @@
           loadFriendsOverview();
         } catch (err) {
           console.error("Erro ao enviar pedido de amizade:", err);
+        }
+      }
+
+      async function removerAmigo(friendId) {
+        try {
+            const resp = await fetch(`/api/friends/${friendId}`, {
+                method: 'DELETE'
+            });
+
+            if (!resp.ok) {
+                const text = await resp.text();
+                showFeedbackToast(text || 'Não foi possível remover amigo.');
+                return;
+            }
+
+            showFeedbackToast('Amizade desfeita.');
+            await loadFriendsOverview();
+            await fetchChatRooms();
+
+        } catch (err) {
+            console.error("Erro ao remover amigo:", err);
+            showFeedbackToast('Erro de rede ao remover amigo.');
         }
       }
 
