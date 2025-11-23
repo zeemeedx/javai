@@ -1457,6 +1457,22 @@
         border: 1px solid rgba(148, 163, 184, 0.3);
       }
 
+      .voting-selection-item button.remove-btn {
+        background-color: #dc2626; /* Red color for remove */
+        color: white;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .voting-selection-item button.remove-btn:hover {
+        background-color: #b91c1c; /* Darker red on hover */
+      }
+
       .favorite-share-card {
         margin-top: 8px;
         border: 1px solid rgba(59, 130, 246, 0.35);
@@ -1484,6 +1500,44 @@
 
       .favorite-share-card button:hover {
         background: #1d4ed8;
+      }
+
+      .favorite-share-card-buttons {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .favorite-share-card-button {
+        flex: 1;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        color: white;
+        transition: background-color 0.2s ease;
+      }
+
+      .favorite-share-card-button.maps {
+        background-color: #1e3a8a;
+      }
+      .favorite-share-card-button.maps:hover {
+        background-color: #1d4ed8;
+      }
+
+      .favorite-share-card-button.favorite {
+        background-color: #3b82f6; /* Default blue for Favoritar */
+      }
+      .favorite-share-card-button.favorite.favorited {
+        background-color: #dc2626; /* Red for Desfavoritar */
+      }
+      .favorite-share-card-button.favorite:hover {
+        background-color: #2563eb;
+      }
+      .favorite-share-card-button.favorite.favorited:hover {
+        background-color: #b91c1c;
       }
 
       /* Responsivo */
@@ -2479,8 +2533,14 @@
         window.open(url, "_blank");
       }
 
-      async function favoritarLugar(placeId, buttonEl) {
-        const place = allFoundPlaces.find((p) => p.id === placeId);
+      async function favoritarLugar(placeOrId, buttonEl = null) {
+        let place;
+        if (typeof placeOrId === 'object' && placeOrId !== null) {
+          place = placeOrId;
+        } else {
+          place = allFoundPlaces.find(p => p.id === placeOrId);
+        }
+
         if (!place) {
           showFeedbackToast("Lugar não encontrado.");
           return;
@@ -2526,7 +2586,7 @@
                 type: place.type ?? "unknown",
                 lat: place.lat,
                 lon: place.lon,
-                source: "OSM",
+                source: place.source || "OSM", 
               }),
             });
 
@@ -2555,10 +2615,18 @@
         }
 
         if (buttonEl) {
-          buttonEl.textContent = isPlaceFavorited(place)
-            ? "⭐ Desfavoritar"
-            : "⭐ Favoritar";
+          const isFavorited = isPlaceFavorited(place);
+          buttonEl.textContent = isFavorited ? "⭐ Desfavoritar" : "⭐ Favoritar";
+          if (buttonEl.classList.contains('favorite')) { // Check if it's the map button
+             if (isFavorited) {
+                buttonEl.classList.add('favorited');
+             } else {
+                buttonEl.classList.remove('favorited');
+             }
+          }
         }
+        // Also refresh map markers to update any other open popups for the same place
+        aplicarFiltroEAtualizarMapa();
       }
 
       function atualizarCoordsLabel(texto) {
@@ -3036,16 +3104,37 @@
             const type = document.createElement("span");
             const label = traducoes[fav.type] || fav.type || "Lugar";
             type.textContent = label;
+
+            const buttonsContainer = document.createElement("div");
+            buttonsContainer.className = "favorite-share-card-buttons";
+
             const openBtn = document.createElement("button");
             openBtn.type = "button";
+            openBtn.className = "favorite-share-card-button maps";
             openBtn.textContent = "Abrir em Maps";
             openBtn.addEventListener("click", () => {
               abrirGoogleMaps(fav.name, fav.lat, fav.lon);
             });
 
+            const favoriteBtn = document.createElement("button");
+            favoriteBtn.type = "button";
+            favoriteBtn.className = "favorite-share-card-button favorite";
+            if (isPlaceFavorited(fav)) {
+              favoriteBtn.classList.add("favorited");
+              favoriteBtn.textContent = "⭐ Desfavoritar";
+            } else {
+              favoriteBtn.textContent = "⭐ Favoritar";
+            }
+            favoriteBtn.addEventListener("click", async (e) => {
+                e.stopPropagation();
+                await favoritarLugar(fav, favoriteBtn);
+            });
+
             favCard.appendChild(title);
             favCard.appendChild(type);
-            favCard.appendChild(openBtn);
+            buttonsContainer.appendChild(openBtn);
+            buttonsContainer.appendChild(favoriteBtn);
+            favCard.appendChild(buttonsContainer);
             bubble.appendChild(favCard);
           }
 
@@ -3116,8 +3205,12 @@
           }
 
           if (activeVotingSession.status === "OPEN") {
+            let hasVoted = activeVotingSession.myVote && activeVotingSession.myVote.length > 0;
+            let voteButtonText = hasVoted ? "✔ Voto registrado (Ver/Alterar)" : "Ordenar lugares e votar";
+            let voteButtonClass = hasVoted ? "secondary" : "";
+
             html += `<div class="voting-panel-actions">`;
-            html += `<button id="btn-open-vote-modal">Ordenar lugares e votar</button>`;
+            html += `<button id="btn-open-vote-modal" class="${voteButtonClass}">${voteButtonText}</button>`;
             if (isAdmin) {
               html += `<button class="secondary" id="btn-close-voting">Encerrar votação</button>`;
             }
@@ -3169,9 +3262,19 @@
           return;
         }
         votingModalMode = "VOTE";
-        votingOptionRanking = activeVotingSession.options.map((opt) => ({
-          ...opt,
-        }));
+
+        const optionsCopy = activeVotingSession.options.map((opt) => ({ ...opt }));
+
+        if (activeVotingSession.myVote && activeVotingSession.myVote.length > 0) {
+            const orderMap = new Map(activeVotingSession.myVote.map((id, index) => [id, index]));
+            optionsCopy.sort((a, b) => {
+                const rankA = orderMap.has(a.id) ? orderMap.get(a.id) : Infinity;
+                const rankB = orderMap.has(b.id) ? orderMap.get(b.id) : Infinity;
+                return rankA - rankB;
+            });
+        }
+        
+        votingOptionRanking = optionsCopy;
         renderVotingModal();
         votingModalOverlay?.classList.add("visible");
       }
@@ -3187,44 +3290,33 @@
 
         if (votingModalMode === "CREATE") {
           votingModalTitleEl.textContent = "Iniciar rolê / votação";
-          votingModalHintEl.textContent =
-            "Escolha ao menos dois favoritos e defina a ordem de preferência.";
+          votingModalHintEl.textContent = "Escolha ao menos dois lugares favoritos para incluir na votação.";
           votingModalPrimaryBtn.textContent = "Iniciar votação";
 
+          // Lista de Favoritos Disponíveis
           const availableWrapper = document.createElement("div");
-          availableWrapper.innerHTML =
-            "<h4 style='margin:0 0 6px 0;font-size:0.85rem;color:#93c5fd;'>Meus favoritos</h4>";
+          availableWrapper.innerHTML = "<h4 style='margin:0 0 6px 0;font-size:0.85rem;color:#93c5fd;'>Adicionar da sua lista de favoritos</h4>";
           const availableList = document.createElement("div");
           availableList.className = "voting-selection-list";
-          const selectedIds = new Set(
-            votingFavoriteSelection.map((fav) => fav.id)
-          );
+          const selectedIds = new Set(votingFavoriteSelection.map((fav) => fav.id));
+          
           const availableFavorites = favoritePlacesList.filter(
             (fav) => !selectedIds.has(fav.id)
           );
+
           if (!availableFavorites.length) {
-            const empty = document.createElement("p");
-            empty.style.margin = "0";
-            empty.style.fontSize = "0.78rem";
-            empty.style.color = "#94a3b8";
-            empty.textContent = "Todos os favoritos já estão na seleção.";
-            availableList.appendChild(empty);
+            availableList.innerHTML = `<p style="margin:0;font-size:0.78rem;color:#94a3b8;">Todos os seus favoritos já estão na seleção.</p>`;
           } else {
             availableFavorites.forEach((fav) => {
               const row = document.createElement("div");
               row.className = "favorite-item-row";
               const info = document.createElement("div");
               info.className = "favorite-item-info";
-              const title = document.createElement("strong");
-              title.textContent = fav.name ?? "(sem nome)";
-              const type = document.createElement("span");
-              type.textContent = traducoes[fav.type] || fav.type || "Lugar";
-              info.appendChild(title);
-              info.appendChild(type);
+              info.innerHTML = `<strong>${fav.name ?? "(sem nome)"}</strong><span>${traducoes[fav.type] || fav.type || "Lugar"}</span>`;
               const addBtn = document.createElement("button");
               addBtn.type = "button";
-              addBtn.textContent = "+";
-              addBtn.style.width = "32px";
+              addBtn.textContent = "Adicionar";
+              addBtn.style.padding = "4px 10px";
               addBtn.addEventListener("click", () => {
                 votingFavoriteSelection.push(fav);
                 renderVotingModal();
@@ -3237,55 +3329,36 @@
           availableWrapper.appendChild(availableList);
           votingModalBodyEl.appendChild(availableWrapper);
 
+          // Lista de Lugares Selecionados (sem ordenação)
           const selectedWrapper = document.createElement("div");
-          selectedWrapper.innerHTML =
-            "<h4 style='margin:10px 0 6px 0;font-size:0.85rem;color:#93c5fd;'>Ordem da votação</h4>";
+          selectedWrapper.innerHTML = "<h4 style='margin:12px 0 6px 0;font-size:0.85rem;color:#93c5fd;'>Selecionados para o Rolê</h4>";
           const selectedList = document.createElement("div");
           selectedList.className = "voting-selection-list";
           if (!votingFavoriteSelection.length) {
-            const empty = document.createElement("p");
-            empty.style.margin = "0";
-            empty.style.fontSize = "0.78rem";
-            empty.style.color = "#94a3b8";
-            empty.textContent = "Selecione ao menos dois lugares.";
-            selectedList.appendChild(empty);
+            selectedList.innerHTML = `<p style="margin:0;font-size:0.78rem;color:#94a3b8;">Adicione lugares da lista acima.</p>`;
           } else {
             votingFavoriteSelection.forEach((fav, index) => {
               const item = document.createElement("div");
               item.className = "voting-selection-item";
               const info = document.createElement("strong");
-              info.textContent = `${index + 1}. ${fav.name ?? "(sem nome)"}`;
-              item.appendChild(info);
-              const controls = document.createElement("div");
-              controls.className = "voting-selection-controls";
-
-              const upBtn = document.createElement("button");
-              upBtn.textContent = "↑";
-              upBtn.disabled = index === 0;
-              upBtn.addEventListener("click", () => {
-                moveFavoriteSelection(index, -1);
-              });
-              const downBtn = document.createElement("button");
-              downBtn.textContent = "↓";
-              downBtn.disabled = index === votingFavoriteSelection.length - 1;
-              downBtn.addEventListener("click", () => {
-                moveFavoriteSelection(index, 1);
-              });
+              info.textContent = `${fav.name ?? "(sem nome)"}`;
+              
               const removeBtn = document.createElement("button");
-              removeBtn.textContent = "×";
+              removeBtn.textContent = "Remover";
+              removeBtn.className = "remove-btn"; // Apply the new class
               removeBtn.addEventListener("click", () => {
                 votingFavoriteSelection.splice(index, 1);
                 renderVotingModal();
               });
-              controls.appendChild(upBtn);
-              controls.appendChild(downBtn);
-              controls.appendChild(removeBtn);
-              item.appendChild(controls);
+
+              item.appendChild(info);
+              item.appendChild(removeBtn);
               selectedList.appendChild(item);
             });
           }
           selectedWrapper.appendChild(selectedList);
           votingModalBodyEl.appendChild(selectedWrapper);
+
         } else if (votingModalMode === "VOTE") {
           votingModalTitleEl.textContent = "Ordenar lugares para o rolê";
           votingModalHintEl.textContent =
@@ -3321,20 +3394,6 @@
           });
           votingModalBodyEl.appendChild(list);
         }
-      }
-
-      function moveFavoriteSelection(index, direction) {
-        const target = index + direction;
-        if (
-          target < 0 ||
-          target >= votingFavoriteSelection.length ||
-          target === index
-        ) {
-          return;
-        }
-        const [item] = votingFavoriteSelection.splice(index, 1);
-        votingFavoriteSelection.splice(target, 0, item);
-        renderVotingModal();
       }
 
       function moveVotingOption(index, direction) {
@@ -3429,6 +3488,7 @@
           }
           closeVotingModal();
           showFeedbackToast("Voto registrado!");
+          await fetchActiveVotingSession(currentRoomId); // Re-fetch session state to update UI
         } catch (err) {
           console.error("Erro ao registrar voto:", err);
           showFeedbackToast("Erro ao registrar voto.");

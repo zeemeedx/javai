@@ -85,6 +85,9 @@ public class VotingController {
     public ResponseEntity<?> sessaoAbertaDoGrupo(@PathVariable Long roomId) {
         try {
             VotingSessionDTO dto = votingService.sessaoAbertaDoGrupo(roomId);
+            if (dto == null) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.ok(dto);
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

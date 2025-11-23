@@ -232,12 +232,37 @@ public class VotingService {
         return ordered;
     }
 
+    private List<Long> parseRankingJsonToIds(String rankingJson) {
+        if (rankingJson == null || rankingJson.isBlank()) {
+            return List.of();
+        }
+        String cleaned = rankingJson
+                .replace("[", "")
+                .replace("]", "")
+                .trim();
+        if (cleaned.isEmpty()) {
+            return List.of();
+        }
+        String[] parts = cleaned.split(",");
+        List<Long> ordered = new ArrayList<>();
+        for (String part : parts) {
+            ordered.add(Long.valueOf(part.trim()));
+        }
+        return ordered;
+    }
+
     private VotingSessionDTO toSessionDTO(VotingSession session) {
+        User currentUser = getAuthenticatedUser();
         List<VotingOption> options = ensureOptionsLoaded(session);
         List<VotingOptionDTO> optionDTOs = options.stream()
                 .sorted((o1, o2) -> Integer.compare(o1.getOrderIndex(), o2.getOrderIndex()))
                 .map(this::toOptionDTO)
                 .toList();
+
+        List<Long> myVote = rankingVoteRepository.findBySessionAndVoter(session, currentUser)
+                .map(vote -> parseRankingJsonToIds(vote.getRankingJson()))
+                .orElse(null);
+
         VotingOptionDTO winning = session.getWinningOption() != null
                 ? toOptionDTO(session.getWinningOption())
                 : null;
@@ -248,7 +273,8 @@ public class VotingService {
                 session.getCreatedAt(),
                 toUserSummary(session.getCreatedBy()),
                 optionDTOs,
-                winning
+                winning,
+                myVote
         );
     }
 

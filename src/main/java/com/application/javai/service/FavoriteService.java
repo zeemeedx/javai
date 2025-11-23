@@ -10,21 +10,30 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.application.javai.dto.FavoritePlaceDTO;
+import com.application.javai.model.ChatMessage;
 import com.application.javai.model.FavoritePlace;
 import com.application.javai.model.User;
+import com.application.javai.repository.ChatMessageRepository;
 import com.application.javai.repository.FavoritePlaceRepository;
 import com.application.javai.repository.UserRepository;
+import com.application.javai.repository.VotingOptionRepository;
 
 @Service
 public class FavoriteService {
 
     private final FavoritePlaceRepository favoritePlaceRepository;
     private final UserRepository userRepository;
+    private final VotingOptionRepository votingOptionRepository;
+    private final ChatMessageRepository chatMessageRepository;
 
     public FavoriteService(FavoritePlaceRepository favoritePlaceRepository,
-                           UserRepository userRepository) {
+                           UserRepository userRepository,
+                           VotingOptionRepository votingOptionRepository,
+                           ChatMessageRepository chatMessageRepository) {
         this.favoritePlaceRepository = favoritePlaceRepository;
         this.userRepository = userRepository;
+        this.votingOptionRepository = votingOptionRepository;
+        this.chatMessageRepository = chatMessageRepository;
     }
 
     @Transactional
@@ -67,6 +76,22 @@ public class FavoriteService {
         User user = getAuthenticatedUser();
         FavoritePlace favorite = favoritePlaceRepository.findByIdAndUser(favoriteId, user)
                 .orElseThrow(() -> new NoSuchElementException("Favorito não encontrado."));
+
+        // Check 1: Is it used in a voting session? If so, block deletion.
+        if (votingOptionRepository.existsByFavoritePlace(favorite)) {
+            throw new IllegalStateException("Este lugar não pode ser removido pois já foi usado em uma votação.");
+        }
+
+        // Step 2: Nullify references in ChatMessages
+        List<ChatMessage> messagesToUpdate = chatMessageRepository.findByFavoritePlace(favorite);
+        if (!messagesToUpdate.isEmpty()) {
+            for (ChatMessage message : messagesToUpdate) {
+                message.setFavoritePlace(null);
+            }
+            chatMessageRepository.saveAll(messagesToUpdate);
+        }
+        
+        // Step 3: Delete the favorite place
         favoritePlaceRepository.delete(favorite);
     }
 

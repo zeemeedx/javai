@@ -12,5 +12,6 @@ public record VotingSessionDTO(
         Instant createdAt,
         UserSummaryDTO createdBy,
         List<VotingOptionDTO> options,
-        VotingOptionDTO winningOption
+        VotingOptionDTO winningOption,
+        List<Long> myVote
 ) {}
