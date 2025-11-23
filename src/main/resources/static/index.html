@@ -102,6 +102,11 @@
         margin-top: 15px;
         padding: 10px;
         font-weight: bold;
+        color: #dc3545; /* Cor de erro */
+        background-color: #f8d7da; /* Fundo leve para erro */
+        border: 1px solid #f5c6cb;
+        border-radius: var(--border-radius);
+        display: none; /* Escondido por padrão */
       }
     </style>
   </head>
@@ -123,8 +128,14 @@
         <p id="message"></p>
       </form>
     </div>
-    <!-- <script src="js/script.js"></script> -->
-    <!-- // por enquanto, não intercepta o submit
-// deixa o Spring Security cuidar do POST /login -->
+    <script>
+      const urlParams = new URLSearchParams(window.location.search);
+      const errorMessageElement = document.getElementById('message');
+
+      if (urlParams.has('error')) {
+        errorMessageElement.textContent = 'Email ou senha incorretos.';
+        errorMessageElement.style.display = 'block';
+      }
+    </script>
   </body>
 </html>
