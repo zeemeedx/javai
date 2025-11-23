@@ -201,7 +201,6 @@ erDiagram
         TEXT ranking_json
     }
 
-    // --- Relationships ---
     users ||--o{ friendships : "is user"
     users ||--o{ friendships : "is friend"
     users ||--o{ friend_requests : "sends"
